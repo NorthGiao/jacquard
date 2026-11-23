@@ -1,0 +1,364 @@
+--- a/src/labview_mcp/gen.py
++++ b/src/labview_mcp/gen.py
+@@ -86,6 +86,8 @@
+             code = 0x16
+             names = [_lv_text(x) for x in self.items]
+             body = struct.pack(">H", len(names)) + b"".join(bytes([len(b)]) + b for b in names)
++            if len(body) % 2:  # the item list is padded to an even length before the label (else the
++                body += b"\x00"  # label is read one byte late: "parity" came back as "arity\x0e")
+         else:  # pragma: no cover
+             raise SpecError(f"unsupported type {self.kind}")
+         flags = 0
+@@ -271,6 +273,11 @@
+ # growable palette functions: their inputs are wired by position, element[i]
+ # terminals the diagram shows under one name but Gen Script knows by another
+ _SCRIPT_TERM_ALIASES = {("Index Array", "index"): "index (row)"}
++# Gen Script reads "element[k]" as terminal position k. Bundle's position 1 is its "cluster" input (0 = output
++# cluster), so the spec's element[k] (k-th element, the name the scan dump reports) is position k + 1. Seen on
++# LabVIEW 2024 Q1, 2026-11-21 (crds_li2026_fig1 / crds_core): element[1] landed on "cluster", the last element
++# input stayed unwired, the VI was broken. Unbundle (position 0 = cluster) needs no offset (same dump).
++_ELEMENT_POS_OFFSET = {"Bundle": 1}
+ _GROWABLE_FUNCS = {"Concatenate Strings", "Build Array", "Bundle", "Unbundle", "Build Cluster Array",
+                    "Index Array", "Array Subset", "Replace Array Subset", "Insert Into Array",
+                    "Delete From Array", "Array To Cluster", "Merge Errors", "Compound Arithmetic"}  # Property / Invoke Nodes: configured after they are placed
+@@ -287,6 +294,11 @@
+     "Shortcut Menu Selection (App)": 53, "Shortcut Menu Selection? (App)": 54,
+     "Shortcut Menu Selection (User)": 55,
+ }
++# Per-version overrides of CONTROL_EVENTS, keyed by the first LabVIEW year they apply to. Measured on
++# LabVIEW 2024 Q1 (64-bit) by registering each code 0-99 and reading the frame caption: the table is the
++# same as 2026 except "Value Change" = 66. 2025 has not been measured; lv.py checks the caption after
++# registering and raises if it does not match, so an unmeasured version fails loudly, not silently.
++CONTROL_EVENTS_BY_VERSION = {2026: {"Value Change": 67}, 0: {"Value Change": 66}}
+ # Events of the VI itself (no "control"): the Event Type value taken as a Static App/VI Event (same
+ # enum; measured on LabVIEW 2026 by registering each value and reading EventStructure.EventSelectors).
+ VI_EVENTS = {
+@@ -374,11 +386,17 @@
+     # "control": spec name, "method"}; and the wires to them, drawn after they are configured: `late`
+     # (a Script binding its ends) with `late_refs` = ("out", k, name) | ("in", k, name) for each bound object.
+     pnodes: list = None
++    # front-panel label -> final label: LabVIEW's script parser drops the whole script on a non-ASCII
++    # label, so such controls are created under their (ASCII) spec name and relabelled afterwards
++    relabel: dict = None
++    # front-panel label -> {"position": (x, y), "visible": (rows, cols), "element_style": str},
++    # applied after restyling (a restyled control is a new object and does not keep its position)
++    fp_finish: dict = None
+     late: "Script | None" = None
+     late_refs: list = None
+ 
+     def has_nodes(self) -> bool:
+-        return bool(self.pnodes) or any(fr["script"] is not None and fr["script"].has_nodes()
++        return bool(self.pnodes) or self.late is not None or any(fr["script"] is not None and fr["script"].has_nodes()
+                                         for ev in self.events or [] for fr in ev["frames"])
+ 
+ 
+@@ -604,15 +622,24 @@
+         if k in ("function", "subvi"):
+             if not term:
+                 raise SpecError(f"wire end {end!r}: give the terminal, e.g. \"{node}.x\"")
++            if k == "subvi" and not term.isascii():  # LabVIEW drops such a wire without an error
++                raise SpecError(f"wire end {end!r}: subVI terminals (the subVI's front-panel labels) must be "
++                                "ASCII to be wired by name; give that subVI ASCII labels")
+             if (k == "function" and term.startswith("element") and not re.fullmatch(r"element\[\d+\]", term)
+-                    and (n.spec.get("size") is not None or n.spec["function"].strip() in _GROWABLE_FUNCS)
+-                    and not (term == "element" and n.spec["function"].strip() == "Index Array")):
++                    and (n.spec.get("size") is not None or str(n.spec.get("function", "")).strip() in _GROWABLE_FUNCS)
++                    and not (term == "element" and str(n.spec.get("function", "")).strip() == "Index Array")):
+                 # (Index Array has one "element" output per index: a 1-D one has a single one)
+                 # a bare "element" reference on a growable node has crashed LabVIEW
+                 raise SpecError(f"wire end {end!r}: wire growable inputs by position as "
+                                 f"\"{node}.element[1]\", \"{node}.element[2]\", ...")
+             alias = _SCRIPT_TERM_ALIASES.get((str(n.spec.get("function", "")).strip(), term))
+-            return f"{node}.{alias}" if alias else end
++            if alias:
++                return f"{node}.{alias}"
++            m = re.fullmatch(r"element\[(\d+)\]", term)
++            off = _ELEMENT_POS_OFFSET.get(str(n.spec.get("function", "")).strip(), 0)
++            if m and off:  # the script parser reads element[k] as terminal position k; see _ELEMENT_POS_OFFSET
++                return f"{node}.element[{int(m.group(1)) + off}]"
++            return end
+         if k in _STRUCT_TERMS:
+             lv = _STRUCT_TERMS[k].get(term)
+             if not lv:
+@@ -912,10 +939,40 @@
+         b.add_existing(e["name"], e.get("kind", "existing"), i, e.get("spec") or {})
+     controls = [dict(c, _ind=False) for c in spec.get("controls", []) or []] + \
+                [dict(c, _ind=True) for c in spec.get("indicators", []) or []]
+-    labels, defaults, styles = {}, {}, {}
++    labels, defaults, styles, relabel, fp_finish = {}, {}, {}, {}, {}
+     for c in controls:
+         b.add(c.get("name"), "indicator" if c["_ind"] else "control", "", c)
+-        labels[c["name"]] = str(c.get("label") or c["name"])
++        want = str(c.get("label") or c["name"])
++        if want.isascii():
++            labels[c["name"]] = want
++        else:
++            if not str(c["name"]).isascii():
++                raise SpecError(f"{c['name']!r}: names must be ASCII; put the Chinese text in \"label\"")
++            labels[c["name"]] = str(c["name"])
++            relabel[str(c["name"])] = want
++        fin = {}
++        t_ = parse_type(c.get("type", "dbl"))
++        if c.get("position") is not None:
++            xy = c["position"]
++            if not (isinstance(xy, (list, tuple)) and len(xy) == 2 and all(isinstance(v, int) for v in xy)):
++                raise SpecError(f"{c['name']!r}: \"position\" is [x, y] in front-panel pixels")
++            fin["position"] = (fp_origin[0] + xy[0], fp_origin[1] + xy[1])
++        if c.get("visible") is not None:
++            v = c["visible"]
++            v = [1, v] if isinstance(v, int) else v
++            if t_.kind != "array" or not (isinstance(v, (list, tuple)) and len(v) == 2
++                                          and all(isinstance(x, int) and x >= 1 for x in v)):
++                raise SpecError(f"{c['name']!r}: \"visible\" is for arrays: [rows, columns] of elements shown "
++                                "(a 1-D array: [1, n] shows n in a row, [n, 1] in a column)")
++            fin["visible"] = tuple(v)
++        if c.get("element_style") is not None:
++            es = c["element_style"]
++            if t_.kind != "array" or not isinstance(es, str) or not es.strip() or _TERM_BAD.search(es):
++                raise SpecError(f"{c['name']!r}: \"element_style\" is for arrays: the palette name of the "
++                                "element, e.g. \"Round LED\"")
++            fin["element_style"] = es.strip()
++        if fin:
++            fp_finish[labels[c["name"]]] = fin
+         if c.get("style") is not None:
+             st = c["style"]
+             if not isinstance(st, str) or not st.strip() or _TERM_BAD.search(st):
+@@ -928,6 +985,9 @@
+             t = parse_type(c.get("type", "dbl"))
+             # an enum's value goes through COM as its item index
+             defaults[labels[c["name"]]] = t.enum_index(c["default"]) if t.kind == "enum" else c["default"]
++    if (edit or existing) and (relabel or fp_finish):
++        raise SpecError("vi_edit does not apply non-ASCII labels, \"position\", \"visible\" or \"element_style\" "
++                        "yet: create the control with an ASCII label, then rename it with \"rename\"")
+     b.collect(spec, "")
+     if not edit and not existing and not any(n.kind not in ("control", "indicator") for n in b.nodes.values()):
+         # A diagram holding only terminals is saved by LabVIEW as a file it cannot reopen.
+@@ -955,7 +1015,8 @@
+             # a latched button only resets when its terminal is read) and stop the loop from there.
+             frames = {vc_frame[w[0]]}
+         if not frames and any((b.nodes[e.partition(".")[0]].kind in _NODE_KINDS
+-                               and b.nodes[e.partition(".")[0]].bind is None) or _byname_elem(b, e) for e in w):
++                               and b.nodes[e.partition(".")[0]].bind is None) or _byname_elem(b, e)
++                              or _late_index(b, e) for e in w):
+             late_raw.append(list(w))  # a Property/Invoke Node has its terminals once it is configured
+         elif not frames:
+             wires.append(ends)
+@@ -985,6 +1046,11 @@
+         n = c["name"]
+         fp = (fp_origin[0] + (320 if c["_ind"] else 0), fp_y[c["_ind"]])
+         fp_y[c["_ind"]] += _fp_height(parse_type(c.get("type", "dbl"))) + 25
++        if c.get("position") is not None:  # optional front-panel [x, y] (top-left); restyled controls keep it
++            xy = c["position"]
++            if not (isinstance(xy, (list, tuple)) and len(xy) == 2 and all(isinstance(v, int) for v in xy)):
++                raise SpecError(f"{n!r}: \"position\" is [x, y] in front-panel pixels")
++            fp = (fp_origin[0] + xy[0], fp_origin[1] + xy[1])
+         out.append(f"<Control name={quoteattr(n)} typeindex=\"{ti}\""
+                    + (" indicator=\"TRUE\"" if c["_ind"] else "")
+                    + f" label={quoteattr(labels[n])}"
+@@ -1009,6 +1075,7 @@
+         events=[dict(e, out=b.out_index[e["name"]]) for e in
+                 sorted(events, key=lambda e: b.event_order.index(e["name"]))],
+         pnodes=pnodes, late=late, late_refs=late_refs,
++        relabel=relabel, fp_finish=fp_finish,
+     )
+ 
+ 
+@@ -1025,6 +1092,18 @@
+             and str(n.spec.get("function", "")).strip() in _BYNAME and term not in _BYNAME_FIXED)
+ 
+ 
++# Array functions whose index terminals exist only once the array input is wired (their number follows
++# the array's dimension): LabVIEW 2024 rejects a script that wires "index" in the same pass (error 1063).
++_LATE_INDEX = {"Insert Into Array", "Replace Array Subset", "Delete From Array"}
++
++
++def _late_index(b: _Builder, end: str) -> bool:
++    node, _, term = end.partition(".")
++    n = b.nodes.get(node)
++    return (n is not None and n.kind == "function" and n.bind is None and not b.event_frame(node)
++            and str(n.spec.get("function", "")).strip() in _LATE_INDEX and term.startswith("index"))
++
++
+ def _plan_nodes(b: _Builder, late_raw: list, labels: dict):
+     """Property/Invoke Nodes of this script (not those in event frames: their frame's script has them)
+     and the script that wires them once configured."""
+--- a/src/labview_mcp/lv.py
++++ b/src/labview_mcp/lv.py
+@@ -148,6 +148,19 @@
+         return d
+ 
+     # ---- tools ----------------------------------------------------------
++    def _event_code(self, fr) -> int:
++        """Event Type for a control event, for the running LabVIEW (the enum shifted between versions)."""
++        from . import gen
++        try:
++            major = int(str(self.app.Version).split(".")[0])
++        except (ValueError, AttributeError):
++            major = 26
++        major = major + 2000 if major < 100 else major
++        for v, table in sorted(gen.CONTROL_EVENTS_BY_VERSION.items(), reverse=True):
++            if major >= v and fr["event_name"] in table:
++                return table[fr["event_name"]]
++        return fr["event"]
++
+     def status(self) -> dict:
+         a = self.app
+         res = {
+@@ -279,7 +292,7 @@
+                 h.SetControlValue("type string", VARIANT(pythoncom.VT_ARRAY | pythoncom.VT_UI1, lt.td()))
+                 h.SetControlValue("data string", VARIANT(pythoncom.VT_ARRAY | pythoncom.VT_UI1, lt.data(True)))
+                 self._run_checked(h, f"clicking {arg!r}")
+-                out.append({"clicked": arg})
++                out.append({"clicked": arg, "t": round(time.monotonic() - t0, 3)})
+                 time.sleep(0.2)
+             elif kind == "set":
+                 if not isinstance(arg, dict):
+@@ -307,7 +320,7 @@
+                     v = _jsonable(_try(lambda label=label: vi.GetControlValue(label)))
+                     got[label] = enums[label][v] if label in enums and isinstance(v, int) and \
+                         0 <= v < len(enums[label]) else v
+-                out.append({"read": got})
++                out.append({"read": got, "t": round(time.monotonic() - t0, 3)})
+             else:
+                 raise LabVIEWError(f"unknown action {kind!r}")
+         return out
+@@ -374,7 +387,7 @@
+                 cache[key] = {n["label"]: n["type"]["enum"] for n in g["nodes"]
+                               if n["kind"] in ("control", "indicator") and "in" not in n and n.get("label")
+                               and isinstance(n.get("type"), dict) and "enum" in n["type"]}
+-            except (LabVIEWError, ValueError):
++            except (LabVIEWError, ValueError, IndexError):
+                 cache[key] = {}
+         return cache[key]
+ 
+@@ -429,6 +442,8 @@
+             rest = {k: v for k, v in (script.styles or {}).items() if k not in early}
+             if rest:
+                 self._apply_styles(target, rest)
++            if script.fp_finish:
++                self._fp_finish(target, script.fp_finish)
+             if later:
+                 status, code, source = self._gen_script(target, "<Script>\n</Script>", [], [])  # Clean Up
+         except LabVIEWError as e:
+@@ -444,6 +459,15 @@
+                     raise LabVIEWError(f"cannot set default of '{label}' to {value!r}: {_com_msg(e)}") from None
+             target._FlagAsMethod("MakeCurValueDefault")
+             target.MakeCurValueDefault()
++        if script.relabel:  # last: everything above finds the controls by their ASCII labels
++            fp = self._fp_refs_by_label(target)
++            h = self._helper(RELABEL_VI)
++            for old, new in script.relabel.items():
++                h.SetControlValue("reference", fp[old])
++                h.SetControlValue("text", new)
++                self._run_checked(h, f"relabelling {old!r} as {new!r}")
++            script.labels = {n: script.relabel.get(l, l) for n, l in script.labels.items()}
++            script.connector = {script.relabel.get(l, l): v for l, v in script.connector.items()}
+         _try(lambda: setattr(target, "FPWinTitle", p.stem))  # blank template carries its own title
+         # LabVIEW's automatic error handling turns an unwired error into a modal dialog, which blocks
+         # LabVIEW (and vi_run) until someone clicks it: off unless the spec asks for it
+@@ -471,6 +495,12 @@
+                 caps = sel[j] if j < len(sel) else [
+                     (f"\"{fr['control']}\": " if fr["control"] else "") + fr["event_name"] for fr in ev["frames"]]
+                 res["event_frames"][ev["name"]] = [f"[{i}] {c}" for i, c in enumerate(caps)]
++                bad = [i for i, (fr, c) in enumerate(zip(ev["frames"], caps)) if not c.endswith(fr["event_name"])]
++                if bad and j < len(sel):
++                    raise LabVIEWError(
++                        f"event structure {ev['name']!r}: LabVIEW registered frame(s) {bad} as {[caps[i] for i in bad]}, "
++                        f"not the requested event; the event-type codes differ in LabVIEW {self.app.Version} "
++                        "(see gen.CONTROL_EVENTS_BY_VERSION)")
+         if script.styles:
+             res["styled"] = script.styles
+         made = self._sink_count(str(p))
+@@ -696,6 +726,57 @@
+         if status:
+             raise LabVIEWError(f"{what} failed (error {code}). {_strip_html(str(source))}")
+ 
++    # Helper VIs this package writes for itself on first use (front-panel properties that no bundled
++    # helper sets). Plain specs: a refnum control into a class Property Node.
++    _GEN_HELPERS = {
++        "arrsize": {"controls": [{"name": "ref", "type": "ref:Array"}, {"name": "rows", "type": "i32"},
++                                 {"name": "cols", "type": "i32"}],
++                    "indicators": [{"name": "err", "label": "error out", "type": "error"}],
++                    "property_nodes": [{"name": "p", "class": "Array", "properties": ["NumRows", "NumCols"],
++                                        "write": True}],
++                    "wires": [["ref", "p.reference"], ["rows", "p.NumRows"], ["cols", "p.NumCols"],
++                              ["p.error out", "err"]]},
++        "arrelem": {"controls": [{"name": "ref", "type": "ref:Array"}],
++                    "indicators": [{"name": "elem", "type": "ref:Control"}, {"name": "err", "label": "error out", "type": "error"}],
++                    "property_nodes": [{"name": "p", "class": "Array", "properties": ["ArrElem"]}],
++                    "wires": [["ref", "p.reference"], ["p.ArrElem", "elem"], ["p.error out", "err"]]},
++    }
++
++    def _gen_helper(self, key: str):
++        cache = self.__dict__.setdefault("_gen_helper_paths", {})
++        if key not in cache or not cache[key].exists():
++            p = self._scratch("helper") / f"lvmcp_{key}.vi"
++            self.vi_create(str(p), self._GEN_HELPERS[key], True, "")
++            cache[key] = p
++        return self._helper(cache[key])
++
++    def _fp_finish(self, target, fin: dict) -> None:
++        """Front-panel finishing after restyling: array element style, number of elements shown,
++        exact position. Keys are front-panel labels."""
++        fp = self._fp_refs_by_label(target)
++        for label, f in fin.items():
++            ref = fp[label]
++            if f.get("element_style"):
++                g = self._gen_helper("arrelem")
++                g.SetControlValue("ref", ref)
++                self._run_checked(g, f"reading the element of {label!r}")
++                h = self._helper(REPLACE_VI)
++                h.SetControlValue("reference", g.GetControlValue("elem"))
++                h.SetControlValue("Style", _ANY_STYLE)
++                h.SetControlValue("Palette String", f["element_style"])
++                self._run_checked(h, f"making the elements of {label!r} a {f['element_style']!r}")
++            if f.get("visible"):
++                g = self._gen_helper("arrsize")
++                g.SetControlValue("ref", ref)
++                g.SetControlValue("rows", int(f["visible"][0]))
++                g.SetControlValue("cols", int(f["visible"][1]))
++                self._run_checked(g, f"showing {f['visible']} elements of {label!r}")
++            if f.get("position"):
++                h = self._helper(SETPOS_VI)
++                h.SetControlValue("reference", ref)
++                h.SetControlValue("position", (int(f["position"][0]), int(f["position"][1])))
++                self._run_checked(h, f"moving {label!r}")
++
+     def _apply_styles(self, target, styles: dict) -> None:
+         """Replace front-panel controls with the palette object named, e.g. "Stop Button". The label,
+         terminal and wires stay."""
+@@ -751,7 +832,7 @@
+                     reg.SetControlValue("Static App/VI Events", VARIANT(arr, []))
+                     # cluster order: Event Type, Reference, Limit (-1 = none), Lock Panel?
+                     reg.SetControlValue("Static Control Events", VARIANT(
+-                        arr, [VARIANT(arr, [fr["event"], fp[fr["control"]], -1, False])]))
++                        arr, [VARIANT(arr, [self._event_code(fr), fp[fr["control"]], -1, False])]))
+                 else:  # an event of this VI: Event Type, Limit, Lock Panel? (no reference)
+                     reg.SetControlValue("Static Control Events", VARIANT(arr, []))
+                     reg.SetControlValue("Static App/VI Events", VARIANT(
+@@ -1395,6 +1476,7 @@
+         before = self._sink_count(path)
+         if script.xml.strip() == "<Script>\n</Script>":  # only removals
+             status, code, source = False, 0, ""
++            self._gen_out = []  # no script ran: _finish_nodes below reads it (AttributeError in a fresh session)
+         else:
+             status, code, source = self._gen_script(target, script.xml, script.type_strings,
+                                                     script.data_strings, refs=refs, raw=True)
+@@ -1701,7 +1783,7 @@
+         from . import dfir
+         try:
+             g = dfir.parse(self._dfir_text(path))
+-        except (LabVIEWError, ValueError):
++        except (LabVIEWError, ValueError, IndexError):
+             return None
+         return sum(len(w["to"]) for w in g["wires"])
+ 
+@@ -1720,7 +1802,7 @@
+                          if n["kind"] in ("control", "indicator") and n.get("conpane_index", -1) >= 0
+                          and "in" not in n]
+                 cache[path] = [lab for _, lab in sorted(terms)]
+-            except LabVIEWError:
++            except (LabVIEWError, ValueError, IndexError):
+                 cache[path] = None
+         return cache[path]
+ 

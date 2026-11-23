@@ -1,0 +1,2567 @@
+{
+ "functions": {
+  "aBuild|None#2": {
+   "Build Array": 16
+  },
+  "aBuild|None#3": {
+   "Build Array": 46
+  },
+  "aBuild|None#3+concat": {
+   "Build Array": 16
+  },
+  "aBuild|None#4": {
+   "Build Array": 11
+  },
+  "aBuild|None#4+concat": {
+   "Build Array": 2
+  },
+  "aBuild|None#5": {
+   "Build Array": 8
+  },
+  "aBuild|None#5+concat": {
+   "Build Array": 2
+  },
+  "aBuild|None#7": {
+   "Build Array": 3
+  },
+  "aDelete|None#5": {
+   "Delete From Array": 17
+  },
+  "aIndx|None#3": {
+   "Index Array": 54
+  },
+  "aIndx|None#4": {
+   "Index Array": 10
+  },
+  "aInit|None#3": {
+   "Initialize Array": 1
+  },
+  "aInsert|None#4": {
+   "Insert Into Array": 12
+  },
+  "aReplace|None#4": {
+   "Replace Array Subset": 2
+  },
+  "aReshape|None#3": {
+   "Reshape Array": 1
+  },
+  "cABuild|None#2": {
+   "Index & Bundle Cluster Array": 1
+  },
+  "concat|None#3": {
+   "Concatenate Strings": 2
+  },
+  "concat|None#4": {
+   "Concatenate Strings": 42
+  },
+  "ctlRefConst|None#1": {
+   "constant": 36
+  },
+  "decimate|None#3": {
+   "Decimate 1D Array": 1
+  },
+  "decomposeClusterNode|None#2": {
+   "Waveform Unbundle / Bundle Elements": 29
+  },
+  "decomposeRecomposeStructure|None#3": {
+   "in_place": 29
+  },
+  "demux|None#3": {
+   "Unbundle": 1
+  },
+  "demux|None#4": {
+   "Unbundle": 1
+  },
+  "eventDataNode|None#3": {
+   "Event Filter Node": 1
+  },
+  "eventDataNode|None#4": {
+   "Event Data Node": 9,
+   "Event Filter Node": 1
+  },
+  "eventDataNode|None#5": {
+   "Event Filter Node": 1
+  },
+  "eventRegNode|None#5": {
+   "Register For Events": 1
+  },
+  "eventStruct|None#3": {
+   "event_structure": 7
+  },
+  "eventStruct|None#4": {
+   "event_structure": 2
+  },
+  "fBox|None#0": {
+   "Formula Node": 1
+  },
+  "forLoop|None#1": {
+   "for_loop": 8
+  },
+  "forLoop|None#10": {
+   "for_loop": 2
+  },
+  "forLoop|None#11": {
+   "for_loop": 1
+  },
+  "forLoop|None#12": {
+   "for_loop": 3
+  },
+  "forLoop|None#14": {
+   "for_loop": 1
+  },
+  "forLoop|None#15": {
+   "for_loop": 13
+  },
+  "forLoop|None#17": {
+   "for_loop": 4
+  },
+  "forLoop|None#19": {
+   "for_loop": 1
+  },
+  "forLoop|None#2": {
+   "for_loop": 18
+  },
+  "forLoop|None#22": {
+   "for_loop": 2
+  },
+  "forLoop|None#23": {
+   "for_loop": 4
+  },
+  "forLoop|None#24": {
+   "for_loop": 1
+  },
+  "forLoop|None#25": {
+   "for_loop": 1
+  },
+  "forLoop|None#3": {
+   "for_loop": 60
+  },
+  "forLoop|None#4": {
+   "for_loop": 17
+  },
+  "forLoop|None#5": {
+   "for_loop": 17
+  },
+  "forLoop|None#6": {
+   "for_loop": 18
+  },
+  "forLoop|None#9": {
+   "for_loop": 2
+  },
+  "iUse|vi:1D Polynomial Evaluation.vi": {
+   "subvi": 2
+  },
+  "iUse|vi:?express": {
+   "subvi": 18
+  },
+  "iUse|vi:Basic Function Generator.vi": {
+   "subvi": 1
+  },
+  "iUse|vi:DAQmx Clear Task.vi": {
+   "subvi": 65
+  },
+  "iUse|vi:DAQmx Is Task Done.vi": {
+   "subvi": 19
+  },
+  "iUse|vi:DAQmx Start Task.vi": {
+   "subvi": 65
+  },
+  "iUse|vi:DAQmx Stop Task.vi": {
+   "subvi": 34
+  },
+  "iUse|vi:Derivative x(t).vi": {
+   "subvi": 1
+  },
+  "iUse|vi:General Error Handler.vi": {
+   "subvi": 46
+  },
+  "iUse|vi:General Polynomial Fit.vi": {
+   "subvi": 2
+  },
+  "iUse|vi:Linear Fit.vi": {
+   "subvi": 10
+  },
+  "iUse|vi:Sawtooth Wave.vi": {
+   "subvi": 18
+  },
+  "iUse|vi:Simple Error Handler.vi": {
+   "subvi": 27
+  },
+  "iUse|vi:Sine Wave.vi": {
+   "subvi": 18
+  },
+  "iUse|vi:Square Wave.vi": {
+   "subvi": 11
+  },
+  "iUse|vi:Std Deviation and Variance.vi": {
+   "subvi": 5
+  },
+  "iUse|vi:ma_Trap Fgen Parameter Errors.vi": {
+   "subvi": 29
+  },
+  "iUse|vi:ma_patchErrorCode or Caller as Source.vi": {
+   "subvi": 29
+  },
+  "interLeave|None#3": {
+   "Interleave 1D Arrays": 1
+  },
+  "mux|None#4": {
+   "Bundle": 55
+  },
+  "mux|None#5": {
+   "Bundle": 1
+  },
+  "nMux|None#2+unb": {
+   "Unbundle By Name": 21
+  },
+  "nMux|None#2+unb+wfm": {
+   "Get Waveform Components": 47
+  },
+  "nMux|None#3+bun": {
+   "Bundle By Name": 8
+  },
+  "nMux|None#3+bun+wfm": {
+   "Build Waveform": 1
+  },
+  "nMux|None#3+unb": {
+   "Unbundle By Name": 29
+  },
+  "nMux|None#4+bun": {
+   "Bundle By Name": 19
+  },
+  "nMux|None#4+bun+wfm": {
+   "Build Waveform": 29
+  },
+  "nMux|None#4+unb": {
+   "Unbundle By Name": 1
+  },
+  "nMux|None#6+unb": {
+   "Unbundle By Name": 7
+  },
+  "polyIUse|vi:Butterworth Filter (DBL).vi": {
+   "subvi": 49
+  },
+  "polyIUse|vi:DAQmx Create Channel (AI-Voltage-Basic).vi": {
+   "subvi": 46
+  },
+  "polyIUse|vi:DAQmx Create Channel (AO-Voltage-Basic).vi": {
+   "subvi": 24
+  },
+  "polyIUse|vi:DAQmx Read (Analog 1D Wfm NChan NSamp).vi": {
+   "subvi": 37
+  },
+  "polyIUse|vi:DAQmx Read (Analog Wfm 1Chan NSamp).vi": {
+   "subvi": 4
+  },
+  "polyIUse|vi:DAQmx Reference Trigger (Digital Edge).vi": {
+   "subvi": 46
+  },
+  "polyIUse|vi:DAQmx Start Trigger (Analog Edge).vi": {
+   "subvi": 19
+  },
+  "polyIUse|vi:DAQmx Start Trigger (Digital Edge).vi": {
+   "subvi": 19
+  },
+  "polyIUse|vi:DAQmx Start Trigger (Time).vi": {
+   "subvi": 1
+  },
+  "polyIUse|vi:DAQmx Timing (Sample Clock).vi": {
+   "subvi": 65
+  },
+  "polyIUse|vi:DAQmx Write (Analog 1D Wfm NChan NSamp).vi": {
+   "subvi": 19
+  },
+  "polyIUse|vi:DAQmx Write (Analog DBL 1Chan 1Samp).vi": {
+   "subvi": 5
+  },
+  "polyIUse|vi:DFD Filtering (Array).vi": {
+   "subvi": 3
+  },
+  "polyIUse|vi:Interpolate 2D (2d X,Y).vi": {
+   "subvi": 4
+  },
+  "polyIUse|vi:Mean (DBL).vi": {
+   "subvi": 32
+  },
+  "polyIUse|vi:Read Delimited Spreadsheet (DBL).vi": {
+   "subvi": 3
+  },
+  "polyIUse|vi:Read From Spreadsheet File (DBL).vi": {
+   "subvi": 9
+  },
+  "polyIUse|vi:VISA Configure Serial Port (Instr).vi": {
+   "subvi": 9
+  },
+  "polyIUse|vi:WDT Index Channel DBL.vi": {
+   "subvi": 41
+  },
+  "polyIUse|vi:Write Delimited Spreadsheet (DBL).vi": {
+   "subvi": 4
+  },
+  "polyIUse|vi:Write To Spreadsheet File (DBL).vi": {
+   "subvi": 50
+  },
+  "polyIUse|vi:Write To Spreadsheet File (I64).vi": {
+   "subvi": 2
+  },
+  "polyIUse|vi:ma_Updatet0 timestamp.vi": {
+   "subvi": 29
+  },
+  "prim|1050#3": {
+   "Add": 92
+  },
+  "prim|1051#3": {
+   "Subtract": 37
+  },
+  "prim|1052#3": {
+   "Multiply": 91
+  },
+  "prim|1053#3": {
+   "Divide": 95
+  },
+  "prim|1054#2": {
+   "Absolute Value": 2
+  },
+  "prim|1055#2": {
+   "Round To Nearest": 1
+  },
+  "prim|1056#4": {
+   "Quotient & Remainder": 10
+  },
+  "prim|1057#2": {
+   "Increment": 8
+  },
+  "prim|1058#2": {
+   "Decrement": 6
+  },
+  "prim|1059#2": {
+   "Reciprocal": 48
+  },
+  "prim|1060#2": {
+   "Square Root": 5
+  },
+  "prim|1061#3": {
+   "And": 6
+  },
+  "prim|1062#3": {
+   "Or": 49
+  },
+  "prim|1063#3": {
+   "Exclusive Or": 1
+  },
+  "prim|1064#2": {
+   "Not": 1
+  },
+  "prim|1069#2": {
+   "Negate": 17
+  },
+  "prim|1075#2": {
+   "Round Toward -Infinity": 48
+  },
+  "prim|1077#2": {
+   "Path To String": 1
+  },
+  "prim|1078#2": {
+   "String To Path": 1
+  },
+  "prim|1083#1": {
+   "First Call?": 29
+  },
+  "prim|1102#3": {
+   "Equal?": 9
+  },
+  "prim|1103#3": {
+   "Greater Or Equal?": 4
+  },
+  "prim|1104#3": {
+   "Less Or Equal?": 1
+  },
+  "prim|1105#3": {
+   "Not Equal?": 1
+  },
+  "prim|1108#4": {
+   "Max & Min": 1
+  },
+  "prim|1110#3": {
+   "Greater?": 18
+  },
+  "prim|1111#3": {
+   "Less?": 8
+  },
+  "prim|1113#2": {
+   "Equal To 0?": 1
+  },
+  "prim|1116#2": {
+   "Not Equal To 0?": 1
+  },
+  "prim|1117#2": {
+   "Greater Than 0?": 1
+  },
+  "prim|1118#2": {
+   "Less Than 0?": 1
+  },
+  "prim|1120#2": {
+   "Sort 1D Array": 1
+  },
+  "prim|1127#5": {
+   "In Range and Coerce": 1
+  },
+  "prim|1142#2": {
+   "To Long Integer": 2
+  },
+  "prim|1143#2": {
+   "To Unsigned Byte Integer": 3
+  },
+  "prim|1144#2": {
+   "To Unsigned Word Integer": 1
+  },
+  "prim|1145#2": {
+   "To Unsigned Long Integer": 45
+  },
+  "prim|1147#2": {
+   "To Double Precision Float": 20
+  },
+  "prim|1160#3": {
+   "function": 1
+  },
+  "prim|1161#4": {
+   "function": 1
+  },
+  "prim|1166#3": {
+   "Type Cast": 1
+  },
+  "prim|1168#2": {
+   "Array To Cluster": 1
+  },
+  "prim|1169#2": {
+   "Cluster To Array": 1
+  },
+  "prim|1180#3": {
+   "Number To Decimal String": 44
+  },
+  "prim|1184#5": {
+   "Decimal String To Number": 3
+  },
+  "prim|1187#6": {
+   "Fract/Exp String To Number": 1
+  },
+  "prim|1188#2": {
+   "To Upper Case": 1
+  },
+  "prim|1189#2": {
+   "To Lower Case": 1
+  },
+  "prim|1200#2": {
+   "Sine": 5
+  },
+  "prim|1201#2": {
+   "Cosine": 17
+  },
+  "prim|1209#2": {
+   "Natural Logarithm": 8
+  },
+  "prim|1211#2": {
+   "Exponential": 1
+  },
+  "prim|1212#2": {
+   "Power Of 10": 1
+  },
+  "prim|1300#1": {
+   "Tick Count (ms)": 10
+  },
+  "prim|1302#2": {
+   "Wait (ms)": 47
+  },
+  "prim|1303#1": {
+   "Get Date/Time In Seconds": 2
+  },
+  "prim|1309#3": {
+   "Seconds To Date/Time": 1
+  },
+  "prim|1327#2": {
+   "Wait Until Next ms Multiple": 20
+  },
+  "prim|1340#3": {
+   "One Button Dialog": 1
+  },
+  "prim|1341#4": {
+   "Two Button Dialog": 1
+  },
+  "prim|1405#4": {
+   "Close File": 1
+  },
+  "prim|1417#4": {
+   "Delete": 1
+  },
+  "prim|1418#8": {
+   "List Directory": 1
+  },
+  "prim|1419#3": {
+   "Build Path": 44
+  },
+  "prim|1420#3": {
+   "Strip Path": 1
+  },
+  "prim|1502#2": {
+   "String Length": 1
+  },
+  "prim|1505#5": {
+   "Number To Exponential String": 1
+  },
+  "prim|1506#5": {
+   "Number To Fractional String": 1
+  },
+  "prim|1516#4": {
+   "Select": 15
+  },
+  "prim|1535#7": {
+   "Match Pattern": 3
+  },
+  "prim|1539#5": {
+   "Spreadsheet String To Array": 1
+  },
+  "prim|1540#4": {
+   "Array To Spreadsheet String": 1
+  },
+  "prim|1600#5": {
+   "Get Date/Time String": 1
+  },
+  "prim|1608#2": {
+   "String To Byte Array": 1
+  },
+  "prim|1609#2": {
+   "Byte Array To String": 4
+  },
+  "prim|1700#1": {
+   "Generate Occurrence": 1
+  },
+  "prim|1701#4": {
+   "Wait on Occurrence": 1
+  },
+  "prim|1702#1": {
+   "Set Occurrence": 1
+  },
+  "prim|1809#2": {
+   "Array Size": 33
+  },
+  "prim|1900#2": {
+   "Reverse 1D Array": 1
+  },
+  "prim|1901#4": {
+   "Search 1D Array": 1
+  },
+  "prim|1902#2": {
+   "Transpose 2D Array": 1
+  },
+  "prim|1903#2": {
+   "Add Array Elements": 1
+  },
+  "prim|1904#2": {
+   "Multiply Array Elements": 1
+  },
+  "prim|1906#3": {
+   "Rotate 1D Array": 1
+  },
+  "prim|1907#5": {
+   "Array Max & Min": 27
+  },
+  "prim|1908#4": {
+   "Split 1D Array": 2
+  },
+  "prim|1922#3": {
+   "VISA Close": 10
+  },
+  "prim|1925#7": {
+   "VISA Read": 10
+  },
+  "prim|1926#6": {
+   "VISA Write": 10
+  },
+  "prim|2073#4": {
+   "Create User Event": 1
+  },
+  "prim|2074#6": {
+   "Generate User Event": 1
+  },
+  "prim|2075#3": {
+   "Destroy User Event": 1
+  },
+  "prim|23059#2": {
+   "Square": 5
+  },
+  "prim|23063#2": {
+   "Empty Array?": 6
+  },
+  "prim|2400#2": {
+   "Always Copy": 1
+  },
+  "prim|2401#5": {
+   "Swap Values": 30
+  },
+  "prim|3914#12": {
+   "Search and Replace String": 1
+  },
+  "prim|8003#5": {
+   "Variant To Data": 1
+  },
+  "prim|8010#8": {
+   "Open VI Reference": 1
+  },
+  "prim|8011#3": {
+   "Close Reference": 1
+  },
+  "prim|8050#9": {
+   "Open/Create/Replace File": 2
+  },
+  "prim|8051#10": {
+   "读取二进制文件": 2
+  },
+  "prim|8052#4": {
+   "Close File": 2
+  },
+  "prim|8055#6": {
+   "Create Folder": 2
+  },
+  "prim|8062#5": {
+   "Get File Position": 3
+  },
+  "prim|8063#5": {
+   "Get File Size": 3
+  },
+  "prim|8073#6": {
+   "Set File Position": 3
+  },
+  "prim|8100#4": {
+   "Format Date/Time String": 1
+  },
+  "prim|8201#2": {
+   "To Variant": 1
+  },
+  "prim|8509#2": {
+   "Transpose Matrix": 1
+  },
+  "prim|9101#7": {
+   "Obtain Notifier": 1
+  },
+  "prim|9102#6": {
+   "Release Notifier": 1
+  },
+  "prim|9104#5": {
+   "Send Notification": 1
+  },
+  "prim|9105#8": {
+   "Wait on Notification": 1
+  },
+  "prim|9108#8": {
+   "Obtain Queue": 2
+  },
+  "prim|9109#6": {
+   "Release Queue": 2
+  },
+  "prim|9110#11": {
+   "Get Queue Status": 1
+  },
+  "prim|9111#7": {
+   "Enqueue Element": 2
+  },
+  "prim|9113#7": {
+   "Dequeue Element": 2
+  },
+  "prim|9114#5": {
+   "Flush Queue": 1
+  },
+  "printf|None#6": {
+   "Format Into String": 1
+  },
+  "propNode|None#5": {
+   "property_node": 40
+  },
+  "propNode|None#7": {
+   "property_node": 19
+  },
+  "propNode|None#8": {
+   "property_node": 19
+  },
+  "scanf|None#9": {
+   "Scan From String": 1
+  },
+  "select|None#2": {
+   "case": 13
+  },
+  "select|None#3": {
+   "case": 52
+  },
+  "select|None#4": {
+   "case": 30
+  },
+  "select|None#5": {
+   "case": 19
+  },
+  "select|None#7": {
+   "case": 29
+  },
+  "subset|None#4": {
+   "Array Subset": 63
+  },
+  "whileLoop|None#0": {
+   "while_loop": 18
+  },
+  "whileLoop|None#1": {
+   "while_loop": 1
+  },
+  "whileLoop|None#11": {
+   "while_loop": 3
+  },
+  "whileLoop|None#15": {
+   "while_loop": 4
+  },
+  "whileLoop|None#2": {
+   "while_loop": 4
+  },
+  "whileLoop|None#20": {
+   "while_loop": 2
+  },
+  "whileLoop|None#25": {
+   "while_loop": 1
+  },
+  "whileLoop|None#26": {
+   "while_loop": 1
+  },
+  "whileLoop|None#3": {
+   "while_loop": 7
+  },
+  "whileLoop|None#4": {
+   "while_loop": 24
+  },
+  "whileLoop|None#5": {
+   "while_loop": 1
+  },
+  "whileLoop|None#6": {
+   "while_loop": 8
+  },
+  "whileLoop|None#8": {
+   "while_loop": 1
+  },
+  "whileLoop|None#9": {
+   "while_loop": 30
+  }
+ },
+ "terminals": {
+  "aBuild|None#2|0": {
+   "appended array": 16
+  },
+  "aBuild|None#2|1": {
+   "element": 16
+  },
+  "aBuild|None#3|0": {
+   "appended array": 46
+  },
+  "aBuild|None#3|1": {
+   "element[1]": 46
+  },
+  "aBuild|None#3|2": {
+   "element[2]": 46
+  },
+  "aBuild|None#3+concat|0": {
+   "appended array": 15
+  },
+  "aBuild|None#3+concat|1": {
+   "array": 15,
+   "array[1]": 1
+  },
+  "aBuild|None#3+concat|2": {
+   "element": 15,
+   "array[2]": 1
+  },
+  "aBuild|None#4|0": {
+   "appended array": 11
+  },
+  "aBuild|None#4|1": {
+   "element[1]": 11
+  },
+  "aBuild|None#4|2": {
+   "element[2]": 11
+  },
+  "aBuild|None#4|3": {
+   "element[3]": 11
+  },
+  "aBuild|None#4+concat|0": {
+   "appended array": 2
+  },
+  "aBuild|None#4+concat|1": {
+   "array": 2
+  },
+  "aBuild|None#4+concat|2": {
+   "element[1]": 2
+  },
+  "aBuild|None#4+concat|3": {
+   "element[2]": 2
+  },
+  "aBuild|None#5|0": {
+   "appended array": 8
+  },
+  "aBuild|None#5|1": {
+   "element[1]": 8
+  },
+  "aBuild|None#5|2": {
+   "element[2]": 8
+  },
+  "aBuild|None#5|3": {
+   "element[3]": 8
+  },
+  "aBuild|None#5|4": {
+   "element[4]": 8
+  },
+  "aBuild|None#5+concat|0": {
+   "appended array": 2
+  },
+  "aBuild|None#5+concat|1": {
+   "array[1]": 2
+  },
+  "aBuild|None#5+concat|2": {
+   "array[2]": 2
+  },
+  "aBuild|None#5+concat|3": {
+   "array[3]": 2
+  },
+  "aBuild|None#5+concat|4": {
+   "array[4]": 2
+  },
+  "aBuild|None#7|0": {
+   "appended array": 3
+  },
+  "aBuild|None#7|1": {
+   "element[1]": 3
+  },
+  "aBuild|None#7|2": {
+   "element[2]": 3
+  },
+  "aBuild|None#7|3": {
+   "element[3]": 3
+  },
+  "aBuild|None#7|4": {
+   "element[4]": 2
+  },
+  "aBuild|None#7|5": {
+   "element[5]": 3
+  },
+  "aBuild|None#7|6": {
+   "element[6]": 2
+  },
+  "aDelete|None#5|0": {
+   "deleted portion": 9
+  },
+  "aDelete|None#5|1": {
+   "array": 17
+  },
+  "aDelete|None#5|2": {
+   "length": 10
+  },
+  "aDelete|None#5|3": {
+   "array w/ subset deleted": 15
+  },
+  "aDelete|None#5|4": {
+   "index": 17
+  },
+  "aIndx|None#3|0": {
+   "array": 54
+  },
+  "aIndx|None#3|1": {
+   "element": 54
+  },
+  "aIndx|None#3|2": {
+   "index": 54
+  },
+  "aIndx|None#4|0": {
+   "array": 10
+  },
+  "aIndx|None#4|1": {
+   "subarray": 10
+  },
+  "aIndx|None#4|2": {
+   "index (row)": 2
+  },
+  "aIndx|None#4|3": {
+   "index (col)": 8
+  },
+  "aInit|None#3|0": {
+   "element": 1
+  },
+  "aInit|None#3|1": {
+   "initialized array": 1
+  },
+  "aInit|None#3|2": {
+   "dimension size": 1
+  },
+  "aInsert|None#4|0": {
+   "array": 12
+  },
+  "aInsert|None#4|1": {
+   "output array": 12
+  },
+  "aInsert|None#4|2": {
+   "index": 10
+  },
+  "aInsert|None#4|3": {
+   "new element/subarray": 12
+  },
+  "aReplace|None#4|0": {
+   "array": 2
+  },
+  "aReplace|None#4|1": {
+   "output array": 2
+  },
+  "aReplace|None#4|2": {
+   "new element/subarray": 2
+  },
+  "aReplace|None#4|3": {
+   "index": 2
+  },
+  "aReshape|None#3|0": {
+   "array": 1
+  },
+  "aReshape|None#3|1": {
+   "output array": 1
+  },
+  "aReshape|None#3|2": {
+   "dimension size": 1
+  },
+  "concat|None#3|0": {
+   "concatenated string": 2
+  },
+  "concat|None#3|1": {
+   "string[1]": 2
+  },
+  "concat|None#3|2": {
+   "string[2]": 1
+  },
+  "concat|None#4|0": {
+   "concatenated string": 42
+  },
+  "concat|None#4|1": {
+   "string[1]": 42
+  },
+  "concat|None#4|2": {
+   "string[2]": 42
+  },
+  "concat|None#4|3": {
+   "string[3]": 42
+  },
+  "decimate|None#3|0": {
+   "array": 1
+  },
+  "decimate|None#3|1": {
+   "decimated array[1]": 1
+  },
+  "decomposeClusterNode|None#2|1": {
+   "Y": 29
+  },
+  "decomposeRecomposeStructure|None#3|1": {
+   "waveform": 29
+  },
+  "decomposeRecomposeStructure|None#3|2": {
+   "output waveform": 29
+  },
+  "demux|None#3|0": {
+   "cluster": 1
+  },
+  "demux|None#4|0": {
+   "cluster": 1
+  },
+  "iUse|vi:1D Polynomial Evaluation.vi|1": {
+   "Y": 2
+  },
+  "iUse|vi:1D Polynomial Evaluation.vi|2": {
+   "Coefficients: a": 2
+  },
+  "iUse|vi:1D Polynomial Evaluation.vi|3": {
+   "X": 2
+  },
+  "iUse|vi:?express|0": {
+   "error out": 3
+  },
+  "iUse|vi:?express|10": {
+   "Y Input": 11,
+   "device name": 3
+  },
+  "iUse|vi:?express|11": {
+   "X Input": 11,
+   "filter in": 1
+  },
+  "iUse|vi:?express|15": {
+   "data": 4
+  },
+  "iUse|vi:?express|2": {
+   "Array": 11,
+   "XY Graph": 11,
+   "Dynamic Data Type": 4,
+   "rate": 4
+  },
+  "iUse|vi:?express|3": {
+   "number of samples": 4,
+   "filter out": 3,
+   "magnitude": 1
+  },
+  "iUse|vi:?express|4": {
+   "Dynamic Data Type": 11,
+   "Array": 4
+  },
+  "iUse|vi:?express|8": {
+   "error in (no error)": 1
+  },
+  "iUse|vi:Basic Function Generator.vi|0": {
+   "error out": 1
+  },
+  "iUse|vi:Basic Function Generator.vi|10": {
+   "amplitude": 1
+  },
+  "iUse|vi:Basic Function Generator.vi|11": {
+   "frequency": 1
+  },
+  "iUse|vi:Basic Function Generator.vi|2": {
+   "signal out": 1
+  },
+  "iUse|vi:Basic Function Generator.vi|6": {
+   "sampling info": 1
+  },
+  "iUse|vi:Basic Function Generator.vi|7": {
+   "signal type": 1
+  },
+  "iUse|vi:Basic Function Generator.vi|8": {
+   "error in (no error)": 1
+  },
+  "iUse|vi:DAQmx Clear Task.vi|0": {
+   "task in": 65
+  },
+  "iUse|vi:DAQmx Clear Task.vi|11": {
+   "error in": 58
+  },
+  "iUse|vi:DAQmx Clear Task.vi|15": {
+   "error out": 58
+  },
+  "iUse|vi:DAQmx Is Task Done.vi|0": {
+   "task/channels in": 19
+  },
+  "iUse|vi:DAQmx Is Task Done.vi|11": {
+   "error in": 19
+  },
+  "iUse|vi:DAQmx Is Task Done.vi|15": {
+   "error out": 19
+  },
+  "iUse|vi:DAQmx Is Task Done.vi|4": {
+   "task out": 19
+  },
+  "iUse|vi:DAQmx Start Task.vi|0": {
+   "task/channels in": 65
+  },
+  "iUse|vi:DAQmx Start Task.vi|11": {
+   "error in": 65
+  },
+  "iUse|vi:DAQmx Start Task.vi|15": {
+   "error out": 65
+  },
+  "iUse|vi:DAQmx Start Task.vi|4": {
+   "task out": 65
+  },
+  "iUse|vi:DAQmx Stop Task.vi|0": {
+   "task/channels in": 34
+  },
+  "iUse|vi:DAQmx Stop Task.vi|11": {
+   "error in": 27
+  },
+  "iUse|vi:DAQmx Stop Task.vi|15": {
+   "error out": 27
+  },
+  "iUse|vi:DAQmx Stop Task.vi|4": {
+   "task out": 34
+  },
+  "iUse|vi:Derivative x(t).vi|11": {
+   "X": 1
+  },
+  "iUse|vi:Derivative x(t).vi|3": {
+   "dX/dt": 1
+  },
+  "iUse|vi:Derivative x(t).vi|8": {
+   "dt": 1
+  },
+  "iUse|vi:General Error Handler.vi|11": {
+   "error in (no error)": 46
+  },
+  "iUse|vi:General Error Handler.vi|9": {
+   "type of dialog (OK msg:1)": 46
+  },
+  "iUse|vi:General Polynomial Fit.vi|0": {
+   "Y": 2
+  },
+  "iUse|vi:General Polynomial Fit.vi|1": {
+   "polynomial order": 2
+  },
+  "iUse|vi:General Polynomial Fit.vi|5": {
+   "X": 2
+  },
+  "iUse|vi:General Polynomial Fit.vi|6": {
+   "Polynomial Coefficients": 2
+  },
+  "iUse|vi:Linear Fit.vi|0": {
+   "Y": 10
+  },
+  "iUse|vi:Linear Fit.vi|5": {
+   "X": 10
+  },
+  "iUse|vi:Linear Fit.vi|6": {
+   "slope": 10
+  },
+  "iUse|vi:Linear Fit.vi|8": {
+   "intercept": 1
+  },
+  "iUse|vi:Sawtooth Wave.vi|0": {
+   "samples": 18
+  },
+  "iUse|vi:Sawtooth Wave.vi|1": {
+   "amplitude": 18
+  },
+  "iUse|vi:Sawtooth Wave.vi|2": {
+   "frequency": 18
+  },
+  "iUse|vi:Sawtooth Wave.vi|3": {
+   "phase in": 18
+  },
+  "iUse|vi:Sawtooth Wave.vi|5": {
+   "sawtooth wave": 16
+  },
+  "iUse|vi:Simple Error Handler.vi|8": {
+   "type of dialog (OK msg:1)": 19
+  },
+  "iUse|vi:Simple Error Handler.vi|9": {
+   "error in (no error)": 27
+  },
+  "iUse|vi:Sine Wave.vi|0": {
+   "samples": 18
+  },
+  "iUse|vi:Sine Wave.vi|1": {
+   "amplitude": 18
+  },
+  "iUse|vi:Sine Wave.vi|2": {
+   "frequency": 18
+  },
+  "iUse|vi:Sine Wave.vi|3": {
+   "phase in": 18
+  },
+  "iUse|vi:Sine Wave.vi|5": {
+   "sine wave": 18
+  },
+  "iUse|vi:Square Wave.vi|0": {
+   "samples": 11
+  },
+  "iUse|vi:Square Wave.vi|2": {
+   "amplitude": 11
+  },
+  "iUse|vi:Square Wave.vi|3": {
+   "frequency": 11
+  },
+  "iUse|vi:Square Wave.vi|4": {
+   "duty cycle (%)": 1
+  },
+  "iUse|vi:Square Wave.vi|5": {
+   "phase in": 11
+  },
+  "iUse|vi:Square Wave.vi|6": {
+   "square wave": 11
+  },
+  "iUse|vi:Std Deviation and Variance.vi|0": {
+   "X": 5
+  },
+  "iUse|vi:Std Deviation and Variance.vi|1": {
+   "Weighting (Sample)": 5
+  },
+  "iUse|vi:Std Deviation and Variance.vi|4": {
+   "variance": 5
+  },
+  "iUse|vi:ma_Trap Fgen Parameter Errors.vi|0": {
+   "error out": 29
+  },
+  "iUse|vi:ma_Trap Fgen Parameter Errors.vi|10": {
+   "frequency": 29
+  },
+  "iUse|vi:ma_Trap Fgen Parameter Errors.vi|6": {
+   "Sampling info": 29
+  },
+  "iUse|vi:ma_Trap Fgen Parameter Errors.vi|8": {
+   "error in (no error)": 29
+  },
+  "iUse|vi:ma_patchErrorCode or Caller as Source.vi|0": {
+   "error out": 29
+  },
+  "iUse|vi:ma_patchErrorCode or Caller as Source.vi|10": {
+   "operation": 29
+  },
+  "iUse|vi:ma_patchErrorCode or Caller as Source.vi|8": {
+   "error in (no error)": 29
+  },
+  "interLeave|None#3|0": {
+   "interleaved array": 1
+  },
+  "interLeave|None#3|1": {
+   "array[1]": 1
+  },
+  "mux|None#4|0": {
+   "output cluster": 55
+  },
+  "mux|None#4|1": {
+   "cluster": 2
+  },
+  "mux|None#4|2": {
+   "element[1]": 2
+  },
+  "mux|None#4|3": {
+   "element[1]": 53
+  },
+  "mux|None#5|0": {
+   "output cluster": 1
+  },
+  "mux|None#5|1": {
+   "cluster": 1
+  },
+  "mux|None#5|2": {
+   "element[1]": 1
+  },
+  "mux|None#5|3": {
+   "element[2]": 1
+  },
+  "nMux|None#2+unb|0": {
+   "input cluster": 21
+  },
+  "nMux|None#2+unb|1": {
+   "status": 19,
+   "a": 1
+  },
+  "nMux|None#2+unb+wfm|0": {
+   "waveform": 46
+  },
+  "nMux|None#2+unb+wfm|1": {
+   "Y": 46
+  },
+  "nMux|None#3+bun|0": {
+   "output cluster": 8
+  },
+  "nMux|None#3+bun|1": {
+   "input cluster": 8
+  },
+  "nMux|None#3+bun|2": {
+   "Marker Index": 7,
+   "b": 1
+  },
+  "nMux|None#3+unb|0": {
+   "input cluster": 29
+  },
+  "nMux|None#3+unb|1": {
+   "Fs": 29
+  },
+  "nMux|None#3+unb|2": {
+   "#s": 29
+  },
+  "nMux|None#4+bun|0": {
+   "output cluster": 19
+  },
+  "nMux|None#4+bun|1": {
+   "input cluster": 19
+  },
+  "nMux|None#4+bun|2": {
+   "#s": 19
+  },
+  "nMux|None#4+bun|3": {
+   "Fs": 19
+  },
+  "nMux|None#4+bun+wfm|0": {
+   "output waveform": 29
+  },
+  "nMux|None#4+bun+wfm|2": {
+   "dt": 29
+  },
+  "nMux|None#4+bun+wfm|3": {
+   "t0": 29
+  },
+  "nMux|None#4+unb|0": {
+   "input cluster": 1
+  },
+  "nMux|None#4+unb|1": {
+   "Waveform Type": 1
+  },
+  "nMux|None#4+unb|2": {
+   "Frequency": 1
+  },
+  "nMux|None#4+unb|3": {
+   "Amplitude": 1
+  },
+  "nMux|None#6+unb|0": {
+   "input cluster": 7
+  },
+  "nMux|None#6+unb|1": {
+   "baud rate": 7
+  },
+  "nMux|None#6+unb|2": {
+   "data bits": 7
+  },
+  "nMux|None#6+unb|3": {
+   "parity": 7
+  },
+  "nMux|None#6+unb|4": {
+   "stop bits": 7
+  },
+  "nMux|None#6+unb|5": {
+   "flow control": 7
+  },
+  "polyIUse|vi:Butterworth Filter (DBL).vi|3": {
+   "Filtered X": 47
+  },
+  "polyIUse|vi:Butterworth Filter (DBL).vi|4": {
+   "order": 48
+  },
+  "polyIUse|vi:Butterworth Filter (DBL).vi|5": {
+   "filter type": 48
+  },
+  "polyIUse|vi:Butterworth Filter (DBL).vi|6": {
+   "low cutoff freq: fl": 49
+  },
+  "polyIUse|vi:Butterworth Filter (DBL).vi|7": {
+   "high cutoff freq: fh": 30
+  },
+  "polyIUse|vi:Butterworth Filter (DBL).vi|8": {
+   "sampling freq: fs": 40
+  },
+  "polyIUse|vi:Butterworth Filter (DBL).vi|9": {
+   "X": 48
+  },
+  "polyIUse|vi:DAQmx Create Channel (AI-Voltage-Basic).vi|1": {
+   "maximum value": 46
+  },
+  "polyIUse|vi:DAQmx Create Channel (AI-Voltage-Basic).vi|15": {
+   "error out": 46
+  },
+  "polyIUse|vi:DAQmx Create Channel (AI-Voltage-Basic).vi|2": {
+   "minimum value": 46
+  },
+  "polyIUse|vi:DAQmx Create Channel (AI-Voltage-Basic).vi|3": {
+   "input terminal configuration": 16
+  },
+  "polyIUse|vi:DAQmx Create Channel (AI-Voltage-Basic).vi|4": {
+   "task out": 46
+  },
+  "polyIUse|vi:DAQmx Create Channel (AI-Voltage-Basic).vi|5": {
+   "physical channels": 46
+  },
+  "polyIUse|vi:DAQmx Create Channel (AO-Voltage-Basic).vi|1": {
+   "maximum value": 19
+  },
+  "polyIUse|vi:DAQmx Create Channel (AO-Voltage-Basic).vi|15": {
+   "error out": 24
+  },
+  "polyIUse|vi:DAQmx Create Channel (AO-Voltage-Basic).vi|2": {
+   "minimum value": 19
+  },
+  "polyIUse|vi:DAQmx Create Channel (AO-Voltage-Basic).vi|4": {
+   "task out": 24
+  },
+  "polyIUse|vi:DAQmx Create Channel (AO-Voltage-Basic).vi|5": {
+   "physical channels": 24
+  },
+  "polyIUse|vi:DAQmx Read (Analog 1D Wfm NChan NSamp).vi|0": {
+   "task/channels in": 37
+  },
+  "polyIUse|vi:DAQmx Read (Analog 1D Wfm NChan NSamp).vi|11": {
+   "error in": 37
+  },
+  "polyIUse|vi:DAQmx Read (Analog 1D Wfm NChan NSamp).vi|15": {
+   "error out": 37
+  },
+  "polyIUse|vi:DAQmx Read (Analog 1D Wfm NChan NSamp).vi|4": {
+   "task out": 37
+  },
+  "polyIUse|vi:DAQmx Read (Analog 1D Wfm NChan NSamp).vi|6": {
+   "data": 37
+  },
+  "polyIUse|vi:DAQmx Read (Analog 1D Wfm NChan NSamp).vi|7": {
+   "number of samples per channel": 37
+  },
+  "polyIUse|vi:DAQmx Read (Analog 1D Wfm NChan NSamp).vi|9": {
+   "timeout": 37
+  },
+  "polyIUse|vi:DAQmx Read (Analog Wfm 1Chan NSamp).vi|0": {
+   "task/channels in": 4
+  },
+  "polyIUse|vi:DAQmx Read (Analog Wfm 1Chan NSamp).vi|11": {
+   "error in": 4
+  },
+  "polyIUse|vi:DAQmx Read (Analog Wfm 1Chan NSamp).vi|15": {
+   "error out": 4
+  },
+  "polyIUse|vi:DAQmx Read (Analog Wfm 1Chan NSamp).vi|4": {
+   "task out": 4
+  },
+  "polyIUse|vi:DAQmx Read (Analog Wfm 1Chan NSamp).vi|6": {
+   "data": 4
+  },
+  "polyIUse|vi:DAQmx Read (Analog Wfm 1Chan NSamp).vi|7": {
+   "number of samples per channel": 4
+  },
+  "polyIUse|vi:DAQmx Read (Analog Wfm 1Chan NSamp).vi|9": {
+   "timeout": 4
+  },
+  "polyIUse|vi:DAQmx Reference Trigger (Digital Edge).vi|0": {
+   "task/channels in": 46
+  },
+  "polyIUse|vi:DAQmx Reference Trigger (Digital Edge).vi|11": {
+   "error in": 46
+  },
+  "polyIUse|vi:DAQmx Reference Trigger (Digital Edge).vi|12": {
+   "pretrigger samples per channel": 46
+  },
+  "polyIUse|vi:DAQmx Reference Trigger (Digital Edge).vi|15": {
+   "error out": 46
+  },
+  "polyIUse|vi:DAQmx Reference Trigger (Digital Edge).vi|4": {
+   "task out": 46
+  },
+  "polyIUse|vi:DAQmx Reference Trigger (Digital Edge).vi|5": {
+   "source": 46
+  },
+  "polyIUse|vi:DAQmx Reference Trigger (Digital Edge).vi|7": {
+   "edge": 46
+  },
+  "polyIUse|vi:DAQmx Start Trigger (Analog Edge).vi|0": {
+   "task/channels in": 19
+  },
+  "polyIUse|vi:DAQmx Start Trigger (Analog Edge).vi|11": {
+   "error in": 19
+  },
+  "polyIUse|vi:DAQmx Start Trigger (Analog Edge).vi|15": {
+   "error out": 19
+  },
+  "polyIUse|vi:DAQmx Start Trigger (Analog Edge).vi|4": {
+   "task out": 19
+  },
+  "polyIUse|vi:DAQmx Start Trigger (Analog Edge).vi|5": {
+   "source": 19
+  },
+  "polyIUse|vi:DAQmx Start Trigger (Analog Edge).vi|7": {
+   "slope": 19
+  },
+  "polyIUse|vi:DAQmx Start Trigger (Analog Edge).vi|9": {
+   "level": 19
+  },
+  "polyIUse|vi:DAQmx Start Trigger (Digital Edge).vi|0": {
+   "task/channels in": 19
+  },
+  "polyIUse|vi:DAQmx Start Trigger (Digital Edge).vi|11": {
+   "error in": 19
+  },
+  "polyIUse|vi:DAQmx Start Trigger (Digital Edge).vi|15": {
+   "error out": 19
+  },
+  "polyIUse|vi:DAQmx Start Trigger (Digital Edge).vi|4": {
+   "task out": 19
+  },
+  "polyIUse|vi:DAQmx Start Trigger (Digital Edge).vi|5": {
+   "source": 19
+  },
+  "polyIUse|vi:DAQmx Start Trigger (Digital Edge).vi|7": {
+   "edge": 19
+  },
+  "polyIUse|vi:DAQmx Start Trigger (Time).vi|0": {
+   "task/channels in": 1
+  },
+  "polyIUse|vi:DAQmx Start Trigger (Time).vi|11": {
+   "error in": 1
+  },
+  "polyIUse|vi:DAQmx Start Trigger (Time).vi|15": {
+   "error out": 1
+  },
+  "polyIUse|vi:DAQmx Start Trigger (Time).vi|4": {
+   "task out": 1
+  },
+  "polyIUse|vi:DAQmx Start Trigger (Time).vi|7": {
+   "when": 1
+  },
+  "polyIUse|vi:DAQmx Start Trigger (Time).vi|9": {
+   "timescale": 1
+  },
+  "polyIUse|vi:DAQmx Timing (Sample Clock).vi|0": {
+   "task/channels in": 65
+  },
+  "polyIUse|vi:DAQmx Timing (Sample Clock).vi|1": {
+   "sample mode": 65
+  },
+  "polyIUse|vi:DAQmx Timing (Sample Clock).vi|11": {
+   "error in": 65
+  },
+  "polyIUse|vi:DAQmx Timing (Sample Clock).vi|15": {
+   "error out": 65
+  },
+  "polyIUse|vi:DAQmx Timing (Sample Clock).vi|2": {
+   "samples per channel": 46
+  },
+  "polyIUse|vi:DAQmx Timing (Sample Clock).vi|4": {
+   "task out": 65
+  },
+  "polyIUse|vi:DAQmx Timing (Sample Clock).vi|5": {
+   "rate": 65
+  },
+  "polyIUse|vi:DAQmx Timing (Sample Clock).vi|7": {
+   "source": 19
+  },
+  "polyIUse|vi:DAQmx Write (Analog 1D Wfm NChan NSamp).vi|0": {
+   "task/channels in": 19
+  },
+  "polyIUse|vi:DAQmx Write (Analog 1D Wfm NChan NSamp).vi|11": {
+   "error in": 19
+  },
+  "polyIUse|vi:DAQmx Write (Analog 1D Wfm NChan NSamp).vi|15": {
+   "error out": 19
+  },
+  "polyIUse|vi:DAQmx Write (Analog 1D Wfm NChan NSamp).vi|4": {
+   "task out": 19
+  },
+  "polyIUse|vi:DAQmx Write (Analog 1D Wfm NChan NSamp).vi|7": {
+   "data": 19
+  },
+  "polyIUse|vi:DAQmx Write (Analog DBL 1Chan 1Samp).vi|0": {
+   "task/channels in": 5
+  },
+  "polyIUse|vi:DAQmx Write (Analog DBL 1Chan 1Samp).vi|11": {
+   "error in": 5
+  },
+  "polyIUse|vi:DAQmx Write (Analog DBL 1Chan 1Samp).vi|15": {
+   "error out": 5
+  },
+  "polyIUse|vi:DAQmx Write (Analog DBL 1Chan 1Samp).vi|4": {
+   "task out": 5
+  },
+  "polyIUse|vi:DAQmx Write (Analog DBL 1Chan 1Samp).vi|7": {
+   "data": 5
+  },
+  "polyIUse|vi:DFD Filtering (Array).vi|10": {
+   "filter": 3
+  },
+  "polyIUse|vi:DFD Filtering (Array).vi|11": {
+   "signal in": 3
+  },
+  "polyIUse|vi:DFD Filtering (Array).vi|3": {
+   "signal out": 3
+  },
+  "polyIUse|vi:DFD Filtering (Array).vi|7": {
+   "init? (F)": 3
+  },
+  "polyIUse|vi:DFD Filtering (Array).vi|8": {
+   "error in (no error)": 3
+  },
+  "polyIUse|vi:Interpolate 2D (2d X,Y).vi|11": {
+   "Z": 1
+  },
+  "polyIUse|vi:Interpolate 2D (2d X,Y).vi|3": {
+   "zi": 4
+  },
+  "polyIUse|vi:Interpolate 2D (2d X,Y).vi|4": {
+   "ntimes": 4
+  },
+  "polyIUse|vi:Interpolate 2D (2d X,Y).vi|7": {
+   "method": 4
+  },
+  "polyIUse|vi:Mean (DBL).vi|0": {
+   "X": 32
+  },
+  "polyIUse|vi:Mean (DBL).vi|1": {
+   "mean": 32
+  },
+  "polyIUse|vi:Read Delimited Spreadsheet (DBL).vi|0": {
+   "file path (dialog if empty)": 3
+  },
+  "polyIUse|vi:Read Delimited Spreadsheet (DBL).vi|12": {
+   "transpose? (F)": 1
+  },
+  "polyIUse|vi:Read Delimited Spreadsheet (DBL).vi|5": {
+   "number of rows (all:-1)": 2
+  },
+  "polyIUse|vi:Read Delimited Spreadsheet (DBL).vi|6": {
+   "all rows": 2
+  },
+  "polyIUse|vi:Read Delimited Spreadsheet (DBL).vi|8": {
+   "first row": 1
+  },
+  "polyIUse|vi:Read From Spreadsheet File (DBL).vi|0": {
+   "EOF?": 1
+  },
+  "polyIUse|vi:Read From Spreadsheet File (DBL).vi|1": {
+   "mark after read (chars.)": 1
+  },
+  "polyIUse|vi:Read From Spreadsheet File (DBL).vi|10": {
+   "number of rows (all:-1)": 1
+  },
+  "polyIUse|vi:Read From Spreadsheet File (DBL).vi|11": {
+   "file path (dialog if empty)": 9
+  },
+  "polyIUse|vi:Read From Spreadsheet File (DBL).vi|2": {
+   "first row": 2
+  },
+  "polyIUse|vi:Read From Spreadsheet File (DBL).vi|3": {
+   "all rows": 7
+  },
+  "polyIUse|vi:Read From Spreadsheet File (DBL).vi|6": {
+   "transpose (no:F)": 4
+  },
+  "polyIUse|vi:Read From Spreadsheet File (DBL).vi|9": {
+   "start of read offset (chars.:0)": 1
+  },
+  "polyIUse|vi:VISA Configure Serial Port (Instr).vi|0": {
+   "VISA resource name": 9
+  },
+  "polyIUse|vi:VISA Configure Serial Port (Instr).vi|12": {
+   "stop bits (10: 1 bit)": 9
+  },
+  "polyIUse|vi:VISA Configure Serial Port (Instr).vi|13": {
+   "flow control (0:none)": 9
+  },
+  "polyIUse|vi:VISA Configure Serial Port (Instr).vi|15": {
+   "error out": 9
+  },
+  "polyIUse|vi:VISA Configure Serial Port (Instr).vi|4": {
+   "VISA resource name out": 9
+  },
+  "polyIUse|vi:VISA Configure Serial Port (Instr).vi|5": {
+   "baud rate (9600)": 9
+  },
+  "polyIUse|vi:VISA Configure Serial Port (Instr).vi|7": {
+   "data bits (8)": 9
+  },
+  "polyIUse|vi:VISA Configure Serial Port (Instr).vi|9": {
+   "parity (0:none)": 9
+  },
+  "polyIUse|vi:WDT Index Channel DBL.vi|11": {
+   "waveform array": 41
+  },
+  "polyIUse|vi:WDT Index Channel DBL.vi|3": {
+   "waveform": 41
+  },
+  "polyIUse|vi:WDT Index Channel DBL.vi|9": {
+   "index": 41
+  },
+  "polyIUse|vi:Write Delimited Spreadsheet (DBL).vi|0": {
+   "file path (dialog if empty)": 4
+  },
+  "polyIUse|vi:Write Delimited Spreadsheet (DBL).vi|1": {
+   "format (%.3f)": 3
+  },
+  "polyIUse|vi:Write Delimited Spreadsheet (DBL).vi|12": {
+   "transpose? (no:F)": 3
+  },
+  "polyIUse|vi:Write Delimited Spreadsheet (DBL).vi|5": {
+   "2D data": 1
+  },
+  "polyIUse|vi:Write Delimited Spreadsheet (DBL).vi|7": {
+   "1D data": 3
+  },
+  "polyIUse|vi:Write Delimited Spreadsheet (DBL).vi|9": {
+   "append to file? (new file:F)": 3
+  },
+  "polyIUse|vi:Write To Spreadsheet File (DBL).vi|1": {
+   "transpose? (no:F)": 50
+  },
+  "polyIUse|vi:Write To Spreadsheet File (DBL).vi|4": {
+   "format (%.3f)": 50
+  },
+  "polyIUse|vi:Write To Spreadsheet File (DBL).vi|5": {
+   "append to file? (new file:F)": 50
+  },
+  "polyIUse|vi:Write To Spreadsheet File (DBL).vi|6": {
+   "1D data": 13
+  },
+  "polyIUse|vi:Write To Spreadsheet File (DBL).vi|7": {
+   "2D data": 37
+  },
+  "polyIUse|vi:Write To Spreadsheet File (DBL).vi|8": {
+   "file path (dialog if empty)": 50
+  },
+  "polyIUse|vi:Write To Spreadsheet File (I64).vi|1": {
+   "transpose? (no:F)": 2
+  },
+  "polyIUse|vi:Write To Spreadsheet File (I64).vi|4": {
+   "format (%d)": 2
+  },
+  "polyIUse|vi:Write To Spreadsheet File (I64).vi|5": {
+   "append to file? (new file:F)": 2
+  },
+  "polyIUse|vi:Write To Spreadsheet File (I64).vi|6": {
+   "1D data": 2
+  },
+  "polyIUse|vi:Write To Spreadsheet File (I64).vi|8": {
+   "file path (dialog if empty)": 2
+  },
+  "polyIUse|vi:ma_Updatet0 timestamp.vi|0": {
+   "tf new": 29
+  },
+  "polyIUse|vi:ma_Updatet0 timestamp.vi|1": {
+   "t0": 29
+  },
+  "polyIUse|vi:ma_Updatet0 timestamp.vi|2": {
+   "samples": 29
+  },
+  "polyIUse|vi:ma_Updatet0 timestamp.vi|3": {
+   "sampling rate (S/s)": 29
+  },
+  "polyIUse|vi:ma_Updatet0 timestamp.vi|4": {
+   "tf previous": 29
+  },
+  "polyIUse|vi:ma_Updatet0 timestamp.vi|5": {
+   "Reset Generation": 29
+  },
+  "prim|1050#3|0": {
+   "x+y": 92
+  },
+  "prim|1050#3|1": {
+   "y": 92
+  },
+  "prim|1050#3|2": {
+   "x": 92
+  },
+  "prim|1051#3|0": {
+   "x-y": 37
+  },
+  "prim|1051#3|1": {
+   "y": 37
+  },
+  "prim|1051#3|2": {
+   "x": 37
+  },
+  "prim|1052#3|0": {
+   "x*y": 91
+  },
+  "prim|1052#3|1": {
+   "y": 91
+  },
+  "prim|1052#3|2": {
+   "x": 91
+  },
+  "prim|1053#3|0": {
+   "x/y": 95
+  },
+  "prim|1053#3|1": {
+   "y": 95
+  },
+  "prim|1053#3|2": {
+   "x": 95
+  },
+  "prim|1054#2|0": {
+   "abs(x)": 2
+  },
+  "prim|1054#2|1": {
+   "x": 2
+  },
+  "prim|1055#2|0": {
+   "nearest integer value": 1
+  },
+  "prim|1055#2|1": {
+   "number": 1
+  },
+  "prim|1056#4|0": {
+   "floor(x/y)": 1
+  },
+  "prim|1056#4|1": {
+   "x-y*floor(x/y)": 10
+  },
+  "prim|1056#4|2": {
+   "y": 10
+  },
+  "prim|1056#4|3": {
+   "x": 10
+  },
+  "prim|1057#2|0": {
+   "x+1": 8
+  },
+  "prim|1057#2|1": {
+   "x": 8
+  },
+  "prim|1058#2|0": {
+   "x-1": 6
+  },
+  "prim|1058#2|1": {
+   "x": 6
+  },
+  "prim|1059#2|0": {
+   "1/x": 48
+  },
+  "prim|1059#2|1": {
+   "x": 48
+  },
+  "prim|1060#2|0": {
+   "sqrt(x)": 5
+  },
+  "prim|1060#2|1": {
+   "x": 5
+  },
+  "prim|1061#3|0": {
+   "x .and. y?": 3
+  },
+  "prim|1061#3|1": {
+   "y": 6
+  },
+  "prim|1061#3|2": {
+   "x": 6
+  },
+  "prim|1062#3|0": {
+   "x .or. y?": 49
+  },
+  "prim|1062#3|1": {
+   "y": 49
+  },
+  "prim|1062#3|2": {
+   "x": 49
+  },
+  "prim|1063#3|0": {
+   "x .xor. y?": 1
+  },
+  "prim|1063#3|1": {
+   "y": 1
+  },
+  "prim|1063#3|2": {
+   "x": 1
+  },
+  "prim|1064#2|0": {
+   ".not. x?": 1
+  },
+  "prim|1064#2|1": {
+   "x": 1
+  },
+  "prim|1069#2|0": {
+   "-x": 17
+  },
+  "prim|1069#2|1": {
+   "x": 17
+  },
+  "prim|1075#2|0": {
+   "floor(x): largest int <= x": 39
+  },
+  "prim|1075#2|1": {
+   "x": 48
+  },
+  "prim|1083#1|0": {
+   "First Call?: T/F": 29
+  },
+  "prim|1102#3|0": {
+   "x = y?": 9
+  },
+  "prim|1102#3|1": {
+   "y": 9
+  },
+  "prim|1102#3|2": {
+   "x": 9
+  },
+  "prim|1103#3|0": {
+   "x >= y?": 4
+  },
+  "prim|1103#3|1": {
+   "y": 4
+  },
+  "prim|1103#3|2": {
+   "x": 4
+  },
+  "prim|1104#3|0": {
+   "x <= y?": 1
+  },
+  "prim|1104#3|1": {
+   "y": 1
+  },
+  "prim|1104#3|2": {
+   "x": 1
+  },
+  "prim|1105#3|0": {
+   "x != y?": 1
+  },
+  "prim|1105#3|1": {
+   "y": 1
+  },
+  "prim|1105#3|2": {
+   "x": 1
+  },
+  "prim|1108#4|0": {
+   "min(x,y)": 1
+  },
+  "prim|1108#4|1": {
+   "max(x,y)": 1
+  },
+  "prim|1108#4|2": {
+   "y": 1
+  },
+  "prim|1108#4|3": {
+   "x": 1
+  },
+  "prim|1110#3|0": {
+   "x > y?": 18
+  },
+  "prim|1110#3|1": {
+   "y": 18
+  },
+  "prim|1110#3|2": {
+   "x": 18
+  },
+  "prim|1111#3|0": {
+   "x < y?": 8
+  },
+  "prim|1111#3|1": {
+   "y": 8
+  },
+  "prim|1111#3|2": {
+   "x": 8
+  },
+  "prim|1113#2|0": {
+   "x = 0?": 1
+  },
+  "prim|1113#2|1": {
+   "x": 1
+  },
+  "prim|1116#2|0": {
+   "x != 0?": 1
+  },
+  "prim|1116#2|1": {
+   "x": 1
+  },
+  "prim|1117#2|0": {
+   "x > 0?": 1
+  },
+  "prim|1117#2|1": {
+   "x": 1
+  },
+  "prim|1118#2|0": {
+   "x < 0?": 1
+  },
+  "prim|1118#2|1": {
+   "x": 1
+  },
+  "prim|1120#2|0": {
+   "sorted array": 1
+  },
+  "prim|1120#2|1": {
+   "array": 1
+  },
+  "prim|1127#5|0": {
+   "In Range?": 1
+  },
+  "prim|1127#5|1": {
+   "coerced(x)": 1
+  },
+  "prim|1127#5|2": {
+   "lower limit": 1
+  },
+  "prim|1127#5|3": {
+   "x": 1
+  },
+  "prim|1127#5|4": {
+   "upper limit": 1
+  },
+  "prim|1142#2|0": {
+   "32bit integer": 2
+  },
+  "prim|1142#2|1": {
+   "number": 2
+  },
+  "prim|1143#2|0": {
+   "unsigned 8bit integer": 3
+  },
+  "prim|1143#2|1": {
+   "number": 3
+  },
+  "prim|1144#2|0": {
+   "unsigned 16bit integer": 1
+  },
+  "prim|1144#2|1": {
+   "number": 1
+  },
+  "prim|1145#2|0": {
+   "unsigned 32bit integer": 45
+  },
+  "prim|1145#2|1": {
+   "number": 45
+  },
+  "prim|1147#2|0": {
+   "double precision float": 20
+  },
+  "prim|1147#2|1": {
+   "number": 20
+  },
+  "prim|1166#3|0": {
+   "x": 1
+  },
+  "prim|1166#3|1": {
+   "type": 1
+  },
+  "prim|1166#3|2": {
+   "*(type *) &x": 1
+  },
+  "prim|1168#2|0": {
+   "cluster": 1
+  },
+  "prim|1168#2|1": {
+   "array": 1
+  },
+  "prim|1169#2|0": {
+   "array": 1
+  },
+  "prim|1169#2|1": {
+   "cluster": 1
+  },
+  "prim|1180#3|0": {
+   "decimal integer string": 44
+  },
+  "prim|1180#3|1": {
+   "width (-)": 1
+  },
+  "prim|1180#3|2": {
+   "number": 44
+  },
+  "prim|1184#5|0": {
+   "number": 2
+  },
+  "prim|1184#5|2": {
+   "default (0L)": 2
+  },
+  "prim|1184#5|3": {
+   "offset": 2
+  },
+  "prim|1184#5|4": {
+   "string": 2
+  },
+  "prim|1188#2|0": {
+   "all upper case string": 1
+  },
+  "prim|1188#2|1": {
+   "string": 1
+  },
+  "prim|1189#2|0": {
+   "all lower case string": 1
+  },
+  "prim|1189#2|1": {
+   "string": 1
+  },
+  "prim|1200#2|0": {
+   "sin(x)": 5
+  },
+  "prim|1200#2|1": {
+   "x": 5
+  },
+  "prim|1201#2|0": {
+   "cos(x)": 17
+  },
+  "prim|1201#2|1": {
+   "x": 17
+  },
+  "prim|1209#2|0": {
+   "ln(x)": 8
+  },
+  "prim|1209#2|1": {
+   "x": 8
+  },
+  "prim|1211#2|0": {
+   "exp(x)": 1
+  },
+  "prim|1211#2|1": {
+   "x": 1
+  },
+  "prim|1212#2|0": {
+   "10^x": 1
+  },
+  "prim|1212#2|1": {
+   "x": 1
+  },
+  "prim|1300#1|0": {
+   "millisecond timer value": 10
+  },
+  "prim|1302#2|0": {
+   "millisecond timer value": 1
+  },
+  "prim|1302#2|1": {
+   "milliseconds to wait": 47
+  },
+  "prim|1303#1|0": {
+   "seconds since 1Jan1904": 1
+  },
+  "prim|1327#2|0": {
+   "millisecond timer value": 1
+  },
+  "prim|1327#2|1": {
+   "millisecond multiple": 20
+  },
+  "prim|1419#3|0": {
+   "appended path": 44
+  },
+  "prim|1419#3|1": {
+   "name or relative path": 44
+  },
+  "prim|1419#3|2": {
+   "base path": 44
+  },
+  "prim|1502#2|0": {
+   "length": 1
+  },
+  "prim|1502#2|1": {
+   "string": 1
+  },
+  "prim|1516#4|0": {
+   "s? t:f": 15
+  },
+  "prim|1516#4|1": {
+   "f": 15
+  },
+  "prim|1516#4|2": {
+   "s": 15
+  },
+  "prim|1516#4|3": {
+   "t": 15
+  },
+  "prim|1535#7|0": {
+   "string": 3
+  },
+  "prim|1535#7|1": {
+   "regular expression": 3
+  },
+  "prim|1535#7|2": {
+   "offset (0)": 1
+  },
+  "prim|1535#7|3": {
+   "before substring": 1
+  },
+  "prim|1535#7|4": {
+   "match substring": 1
+  },
+  "prim|1535#7|5": {
+   "after substring": 3
+  },
+  "prim|1535#7|6": {
+   "offset past match": 1
+  },
+  "prim|1608#2|0": {
+   "unsigned byte array": 1
+  },
+  "prim|1608#2|1": {
+   "string": 1
+  },
+  "prim|1609#2|0": {
+   "string": 4
+  },
+  "prim|1609#2|1": {
+   "unsigned byte array": 4
+  },
+  "prim|1809#2|0": {
+   "size(s)": 30
+  },
+  "prim|1809#2|1": {
+   "array": 33
+  },
+  "prim|1900#2|0": {
+   "reversed array": 1
+  },
+  "prim|1900#2|1": {
+   "array": 1
+  },
+  "prim|1901#4|0": {
+   "index of element": 1
+  },
+  "prim|1901#4|1": {
+   "start index (0)": 1
+  },
+  "prim|1901#4|2": {
+   "element": 1
+  },
+  "prim|1901#4|3": {
+   "1D array": 1
+  },
+  "prim|1902#2|0": {
+   "transposed array": 1
+  },
+  "prim|1902#2|1": {
+   "2D array": 1
+  },
+  "prim|1903#2|0": {
+   "sum": 1
+  },
+  "prim|1903#2|1": {
+   "numeric array": 1
+  },
+  "prim|1904#2|0": {
+   "product": 1
+  },
+  "prim|1904#2|1": {
+   "numeric array": 1
+  },
+  "prim|1906#3|0": {
+   "array (last n elements first)": 1
+  },
+  "prim|1906#3|1": {
+   "array": 1
+  },
+  "prim|1906#3|2": {
+   "n": 1
+  },
+  "prim|1907#5|0": {
+   "array": 27
+  },
+  "prim|1907#5|1": {
+   "max value": 21
+  },
+  "prim|1907#5|2": {
+   "max index (indices)": 7
+  },
+  "prim|1907#5|3": {
+   "min value": 22
+  },
+  "prim|1907#5|4": {
+   "min index (indices)": 2
+  },
+  "prim|1908#4|0": {
+   "second subarray": 2
+  },
+  "prim|1908#4|1": {
+   "first subarray": 2
+  },
+  "prim|1908#4|2": {
+   "index": 2
+  },
+  "prim|1908#4|3": {
+   "array": 2
+  },
+  "prim|1922#3|0": {
+   "error out": 9
+  },
+  "prim|1922#3|1": {
+   "error in (no error)": 10
+  },
+  "prim|1922#3|2": {
+   "VISA resource name": 10
+  },
+  "prim|1925#7|0": {
+   "error out": 10
+  },
+  "prim|1925#7|1": {
+   "return count": 1
+  },
+  "prim|1925#7|2": {
+   "read buffer": 10
+  },
+  "prim|1925#7|3": {
+   "VISA resource name out": 10
+  },
+  "prim|1925#7|4": {
+   "error in (no error)": 10
+  },
+  "prim|1925#7|5": {
+   "byte count": 10
+  },
+  "prim|1925#7|6": {
+   "VISA resource name": 10
+  },
+  "prim|1926#6|0": {
+   "error out": 10
+  },
+  "prim|1926#6|1": {
+   "return count": 1
+  },
+  "prim|1926#6|2": {
+   "VISA resource name out": 10
+  },
+  "prim|1926#6|3": {
+   "error in (no error)": 10
+  },
+  "prim|1926#6|4": {
+   "write buffer": 10
+  },
+  "prim|1926#6|5": {
+   "VISA resource name": 10
+  },
+  "prim|23059#2|0": {
+   "x^2": 5
+  },
+  "prim|23059#2|1": {
+   "x": 5
+  },
+  "prim|23063#2|0": {
+   "empty?": 6
+  },
+  "prim|23063#2|1": {
+   "array": 6
+  },
+  "prim|2400#2|0": {
+   "Output": 1
+  },
+  "prim|2400#2|1": {
+   "Input": 1
+  },
+  "prim|2401#5|0": {
+   " y'": 30
+  },
+  "prim|2401#5|1": {
+   " x'  ": 1
+  },
+  "prim|2401#5|2": {
+   "y": 30
+  },
+  "prim|2401#5|3": {
+   "?(T)": 1
+  },
+  "prim|2401#5|4": {
+   "x": 30
+  },
+  "prim|3914#12|0": {
+   "input string": 1
+  },
+  "prim|3914#12|1": {
+   "replace all?": 1
+  },
+  "prim|3914#12|10": {
+   "error in": 1
+  },
+  "prim|3914#12|11": {
+   "error out": 1
+  },
+  "prim|3914#12|2": {
+   "case sensitive?": 1
+  },
+  "prim|3914#12|3": {
+   "multiline?": 1
+  },
+  "prim|3914#12|4": {
+   "result string": 1
+  },
+  "prim|3914#12|5": {
+   "search string": 1
+  },
+  "prim|3914#12|6": {
+   "replace string": 1
+  },
+  "prim|3914#12|7": {
+   "number of replacements": 1
+  },
+  "prim|3914#12|8": {
+   "offset": 1
+  },
+  "prim|3914#12|9": {
+   "offset past replacement": 1
+  },
+  "prim|8050#9|0": {
+   "error out": 2
+  },
+  "prim|8050#9|2": {
+   "refnum out": 2
+  },
+  "prim|8050#9|5": {
+   "error in": 2
+  },
+  "prim|8050#9|7": {
+   "operation (0:open)": 2
+  },
+  "prim|8050#9|8": {
+   "file path (use dialog)": 2
+  },
+  "prim|8051#10|0": {
+   "error out": 2
+  },
+  "prim|8051#10|2": {
+   "data": 2
+  },
+  "prim|8051#10|3": {
+   "refnum out": 2
+  },
+  "prim|8051#10|4": {
+   "data type": 2
+  },
+  "prim|8051#10|6": {
+   "error in": 2
+  },
+  "prim|8051#10|7": {
+   "byte order (0:big-endian, network order)": 2
+  },
+  "prim|8051#10|8": {
+   "count": 2
+  },
+  "prim|8051#10|9": {
+   "file (use dialog)": 2
+  },
+  "prim|8052#4|0": {
+   "error out": 2
+  },
+  "prim|8052#4|1": {
+   "path": 2
+  },
+  "prim|8052#4|2": {
+   "error in": 2
+  },
+  "prim|8052#4|3": {
+   "refnum": 2
+  },
+  "prim|8055#6|2": {
+   "created path": 1
+  },
+  "prim|8055#6|5": {
+   "path (use dialog)": 1
+  },
+  "prim|8062#5|0": {
+   "error out": 3
+  },
+  "prim|8062#5|1": {
+   "offset (in bytes)": 3
+  },
+  "prim|8062#5|2": {
+   "refnum out": 3
+  },
+  "prim|8062#5|3": {
+   "error in": 3
+  },
+  "prim|8062#5|4": {
+   "refnum": 3
+  },
+  "prim|8063#5|0": {
+   "error out": 2
+  },
+  "prim|8063#5|1": {
+   "size (in bytes)": 2
+  },
+  "prim|8063#5|2": {
+   "refnum out": 2
+  },
+  "prim|8063#5|3": {
+   "error in": 2
+  },
+  "prim|8063#5|4": {
+   "file": 2
+  },
+  "prim|8073#6|0": {
+   "error out": 2
+  },
+  "prim|8073#6|1": {
+   "refnum out": 2
+  },
+  "prim|8073#6|2": {
+   "error in": 2
+  },
+  "prim|8073#6|4": {
+   "offset (in bytes) (0)": 2
+  },
+  "prim|8073#6|5": {
+   "refnum": 2
+  },
+  "prim|8509#2|0": {
+   "transposed matrix": 1
+  },
+  "prim|8509#2|1": {
+   "matrix": 1
+  },
+  "prim|9108#8|1": {
+   "element data type": 1
+  },
+  "prim|9108#8|5": {
+   "queue out": 1
+  },
+  "prim|9109#6|0": {
+   "queue": 1
+  },
+  "prim|9111#7|0": {
+   "queue": 1
+  },
+  "prim|9111#7|1": {
+   "element": 1
+  },
+  "prim|9111#7|4": {
+   "queue out": 1
+  },
+  "prim|9113#7|0": {
+   "queue": 1
+  },
+  "prim|9113#7|3": {
+   "queue out": 1
+  },
+  "prim|9113#7|4": {
+   "element": 1
+  },
+  "printf|None#6|0": {
+   "format string": 1
+  },
+  "printf|None#6|1": {
+   "initial string": 1
+  },
+  "propNode|None#5|0": {
+   "reference": 16,
+   "task out": 19
+  },
+  "propNode|None#5|1": {
+   "task out": 19,
+   "reference out": 9
+  },
+  "propNode|None#5|2": {
+   "error in (no error)": 35
+  },
+  "propNode|None#5|3": {
+   "error out": 35
+  },
+  "propNode|None#5|4": {
+   "Cursor List": 7,
+   "SampClk.Rate": 19,
+   "Start.AnlgEdge.Hyst": 19,
+   "ZScale.MarkerVals[]": 4,
+   "Bytes at Port": 9,
+   "Visible": 1
+  },
+  "propNode|None#7|0": {
+   "task out": 19
+  },
+  "propNode|None#7|1": {
+   "task out": 19
+  },
+  "propNode|None#7|2": {
+   "error in (no error)": 19
+  },
+  "propNode|None#7|3": {
+   "error out": 19
+  },
+  "propNode|None#7|4": {
+   "Pause.TrigType": 19
+  },
+  "propNode|None#7|5": {
+   "Pause.DigLvl.Src": 19
+  },
+  "propNode|None#7|6": {
+   "Pause.DigLvl.When": 19
+  },
+  "propNode|None#8|0": {
+   "task out": 19
+  },
+  "propNode|None#8|1": {
+   "task out": 19
+  },
+  "propNode|None#8|2": {
+   "error in (no error)": 19
+  },
+  "propNode|None#8|3": {
+   "error out": 19
+  },
+  "propNode|None#8|4": {
+   "Pause.TrigType": 19
+  },
+  "propNode|None#8|5": {
+   "Pause.AnlgLvl.Src": 19
+  },
+  "propNode|None#8|6": {
+   "Pause.AnlgLvl.When": 19
+  },
+  "propNode|None#8|7": {
+   "Pause.AnlgLvl.Lvl": 19
+  },
+  "subset|None#4|0": {
+   "array": 63
+  },
+  "subset|None#4|1": {
+   "subarray": 63
+  },
+  "subset|None#4|2": {
+   "index": 49
+  },
+  "subset|None#4|3": {
+   "length": 49
+  }
+ }
+}

@@ -1,0 +1,4 @@
+{
+ "_doc": "functions/terminals accumulated by offline lint, awaiting on-site verification; scripts/probe_terms.sh --queue probes them all in one go",
+ "items": {}
+}

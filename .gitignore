@@ -1,0 +1,40 @@
+# the user's VIs, dumps, pulled-back results, local configuration
+private/
+__pycache__/
+.DS_Store
+.pytest_cache/
+.claude/
+tmp/
+.env
+*.env
+
+# LabVIEW files and acquired data never go into the repo (the writer's helper VIs are the only exception)
+*.vi
+!writer/labview_mcp/vis/*.vi
+*.vit
+*.ctl
+*.ctt
+*.llb
+*.lvlib
+*.lvclass
+*.lvproj
+*.dmp
+*.dat
+*.lvm
+*.tdms
+*.tdms_index
+*.pdf
+
+# jobs/: only the shipped examples are public; everyone's own jobs stay local
+jobs/*
+!jobs/__init__.py
+!jobs/_template.py
+!jobs/gallery.py
+!jobs/mcpi.py
+!jobs/failtest.py
+!jobs/typeprobe.py
+# on-site verification record of this installation (written by jacq.job_check), not shared
+jobs/verified.json
+
+# task statements / notes of the user's own work
+wms_task/

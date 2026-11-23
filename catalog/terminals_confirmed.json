@@ -1,0 +1,310 @@
+{
+ "_doc": "现场核实过的端子名。只由 scripts/probe_terms.sh（function_terminals 读回）或从现场通过的建 VI 结果收集写入；agent 不要手改——没核实的名字用 `python -m jacq.catalog queue add <函数>` 排进探针队列。provenance = 出处；没列出处的条目来自现场接线与探针。",
+ "functions": {
+  "Add": [
+   "x",
+   "y",
+   "x+y"
+  ],
+  "Subtract": [
+   "x",
+   "y",
+   "x-y"
+  ],
+  "Multiply": [
+   "x",
+   "y",
+   "x*y"
+  ],
+  "Divide": [
+   "x",
+   "y",
+   "x/y"
+  ],
+  "Increment": [
+   "x",
+   "x+1"
+  ],
+  "Decrement": [
+   "x",
+   "x-1"
+  ],
+  "Absolute Value": [
+   "x",
+   "abs(x)"
+  ],
+  "Equal?": [
+   "x",
+   "y",
+   "x = y?"
+  ],
+  "Equal To 0?": [
+   "x",
+   "x = 0?"
+  ],
+  "Greater?": [
+   "x",
+   "y",
+   "x > y?"
+  ],
+  "Less?": [
+   "x",
+   "y",
+   "x < y?"
+  ],
+  "Less Or Equal?": [
+   "x",
+   "y",
+   "x <= y?"
+  ],
+  "And": [
+   "x",
+   "y",
+   "x .and. y?"
+  ],
+  "Or": [
+   "x",
+   "y",
+   "x .or. y?"
+  ],
+  "Select": [
+   "s",
+   "t",
+   "f",
+   "s? t:f"
+  ],
+  "Index Array": [
+   "array",
+   "index",
+   "index (row)",
+   "index (col)",
+   "element",
+   "subarray"
+  ],
+  "Array Subset": [
+   "array",
+   "index",
+   "length",
+   "subarray"
+  ],
+  "Array Max & Min": [
+   "array",
+   "max value",
+   "max index (indices)",
+   "min value",
+   "min index (indices)"
+  ],
+  "Max & Min": [
+   "x",
+   "y",
+   "min(x,y)",
+   "max(x,y)"
+  ],
+  "Add Array Elements": [
+   "numeric array",
+   "sum"
+  ],
+  "Reshape Array": [
+   "array",
+   "dimension size",
+   "output array"
+  ],
+  "Transpose 2D Array": [
+   "2D array",
+   "transposed array"
+  ],
+  "Search 1D Array": [
+   "1D array",
+   "element",
+   "start index (0)",
+   "index of element"
+  ],
+  "Round Toward -Infinity": [
+   "x",
+   "floor(x): largest int <= x"
+  ],
+  "To Long Integer": [
+   "number",
+   "32bit integer"
+  ],
+  "Boolean To (0,1)": [
+   "Boolean",
+   "0, 1"
+  ],
+  "Build Array": [
+   "element",
+   "element[1]",
+   "element[2]",
+   "element[3]",
+   "element[4]",
+   "appended array"
+  ],
+  "Square Root": [
+   "sqrt(x)",
+   "x"
+  ],
+  "Sine": [
+   "sin(x)",
+   "x"
+  ],
+  "Replace Array Subset": [
+   "array",
+   "index",
+   "new element/subarray",
+   "output array"
+  ],
+  "Build Path": [
+   "appended path",
+   "base path",
+   "name or relative path"
+  ],
+  "Byte Array To String": [
+   "string",
+   "unsigned byte array"
+  ],
+  "Concatenate Strings": [
+   "concatenated string"
+  ],
+  "Dequeue Element": [
+   "element",
+   "queue",
+   "queue out"
+  ],
+  "Enqueue Element": [
+   "element",
+   "queue",
+   "queue out"
+  ],
+  "Greater Or Equal?": [
+   "x",
+   "x >= y?",
+   "y"
+  ],
+  "In Range and Coerce": [
+   "coerced(x)",
+   "lower limit",
+   "upper limit",
+   "x"
+  ],
+  "Insert Into Array": [
+   "array",
+   "index",
+   "new element/subarray",
+   "output array"
+  ],
+  "Number To Decimal String": [
+   "decimal integer string",
+   "number"
+  ],
+  "Obtain Queue": [
+   "element data type",
+   "queue out"
+  ],
+  "Release Queue": [
+   "queue"
+  ],
+  "String To Byte Array": [
+   "string",
+   "unsigned byte array"
+  ],
+  "Unbundle": [
+   "cluster"
+  ],
+  "Delete From Array": [
+   "array",
+   "array w/ subset deleted",
+   "deleted portion",
+   "index",
+   "length"
+  ],
+  "Unbundle By Name": [
+   "input cluster"
+  ],
+  "Bundle By Name": [
+   "input cluster",
+   "output cluster"
+  ],
+  "Tick Count (ms)": [
+   "millisecond timer value"
+  ]
+ },
+ "subvis": {
+  "Uniform White Noise.vi": [
+   "samples",
+   "amplitude",
+   "seed",
+   "initialize?",
+   "error",
+   "uniform white noise"
+  ]
+ },
+ "unwireable_by_name": {
+  "Random Number (0-1)": "端子名接不上：用 vi.lib 的 Uniform White Noise.vi 包一层",
+  "String Subset": "length 端子接不上",
+  "VISA Configure Serial Port": "stop bits 端子名带冒号数字，解析失败"
+ },
+ "vilib_paths": {
+  "Uniform White Noise.vi": "C:\\Program Files\\National Instruments\\LabVIEW 2024\\vi.lib\\Analysis\\1siggen.llb\\Uniform White Noise.vi"
+ },
+ "provenance": {
+  "Build Path": [
+   "现场建 VI：build_path"
+  ],
+  "Byte Array To String": [
+   "现场建 VI：substr"
+  ],
+  "Concatenate Strings": [
+   "现场建 VI：string_num"
+  ],
+  "Dequeue Element": [
+   "现场建 VI：queue"
+  ],
+  "Enqueue Element": [
+   "现场建 VI：queue"
+  ],
+  "Greater Or Equal?": [
+   "现场建 VI：while_sr"
+  ],
+  "In Range and Coerce": [
+   "现场建 VI：select_coerce"
+  ],
+  "Insert Into Array": [
+   "现场建 VI：ev_insert",
+   "现场建 VI：array_fix_test"
+  ],
+  "Number To Decimal String": [
+   "现场建 VI：string_num"
+  ],
+  "Obtain Queue": [
+   "现场建 VI：queue"
+  ],
+  "Release Queue": [
+   "现场建 VI：queue"
+  ],
+  "String To Byte Array": [
+   "现场建 VI：substr"
+  ],
+  "Unbundle": [
+   "现场建 VI：cluster_in"
+  ],
+  "Delete From Array": [
+   "现场建 VI：array_fix_test（运行数值对）"
+  ],
+  "Replace Array Subset": [
+   "现场建 VI：array_fix_test"
+  ],
+  "Unbundle By Name": [
+   "现场建 VI：byname_test；输出端子 = 簇元素名"
+  ],
+  "Bundle By Name": [
+   "现场建 VI：byname_test；输入端子 = 簇元素名"
+  ],
+  "Tick Count (ms)": [
+   "function_terminals (probe_terms.sh)"
+  ]
+ },
+ "by_name": {
+  "Unbundle By Name": "除 input cluster 外，端子名 = 簇里元素的名字（只能是接入簇里真有的名字；裸 element 报 1063）",
+  "Bundle By Name": "除 input cluster/output cluster 外，端子名 = 簇里元素的名字"
+ }
+}
