@@ -15,6 +15,10 @@
 9. Optional DFIR reads in `lv.py` (`_sink_count`, `_enum_items`, `_connector_labels`) also catch `IndexError`: on-site 2026-11-21 (`crds_li2026_rest` / `gum_unc`) `dfir.parse` raised `IndexError` at `dfir.py:352` (`t.tds[r]`), which failed the build and then the tests although these reads are documented as "None / empty when unreadable". Made by the lab agent, reviewed 2026-11-22. The `dfir.py` bug itself is still open.
    (Not upstream: our `scan.py` now also numbers unnamed Bundle / Unbundle element terminals `element[k]`; before, the dump wrote `[uid …]` and `wire_diff` stopped with `KeyError`. Same on-site round.)
 
+10. Front-panel stacking knows graph / chart styles (`_fp_height` in `gen.py`, 230 px instead of the 55 px of a plain array) and hand-placed controls (`position`) no longer take a slot in the automatic column: on-site 2026-11-21 (`crds_li2026_rest` / `crds_fig2`) ten Waveform Graphs stacked 80 px apart overlapped, only the last x axis was visible. General fix, could go upstream.
+
+11. `_matches` (vi_test) lets an expected NaN / inf match the `"nan"` / `"inf"` / `"-inf"` string that `_jsonable` makes of it (upstream keeps results strict JSON, so a NaN expectation could never pass). The lab side turns those strings back into floats for numeric indicators (`jobguard.decode_nonfinite`, used by `vi_job.py` checks and `production.py`). General fix, could go upstream.
+
 ## Results of the upstream tests after patching
 
 `lab/run_upstream_tests.py` runs upstream's own live tests on LabVIEW 2024 Q1 (VIs built in `write2\upstream_tests\`):

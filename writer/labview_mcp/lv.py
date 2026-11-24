@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import datetime as _dt
 import json
+import math
 import os
 import re
 import shutil
@@ -2341,6 +2342,8 @@ def _matches(got, want, tol: float) -> bool:
     expected size, at least absolute tol), lists/clusters element by element, others exactly."""
     if isinstance(want, bool) or isinstance(got, bool):
         return got is not None and bool(got) == bool(want)
+    if isinstance(want, float) and not math.isfinite(want):  # NaN / inf expected: _jsonable gave "nan" / "inf" / "-inf"
+        return str(got) == str(want) if isinstance(got, (str, float)) else False
     if isinstance(want, (int, float)) and isinstance(got, (int, float)):
         return abs(got - want) <= tol * max(1.0, abs(want))
     if isinstance(want, (list, tuple)) and isinstance(got, (list, tuple)):

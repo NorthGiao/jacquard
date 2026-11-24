@@ -80,7 +80,23 @@
          if k in _STRUCT_TERMS:
              lv = _STRUCT_TERMS[k].get(term)
              if not lv:
-@@ -912,10 +939,40 @@
+@@ -852,8 +879,13 @@
+                True: ["right0", "right1", "right2", "bottom0", "bottom1", "right3"]}
+ 
+ 
+-def _fp_height(t: LVType) -> int:
+-    """Rough height of a front-panel control of this type, used to stack controls."""
++_GRAPH_H = 230  # graph / chart styles: ~245 px from label to x-axis title on-site (2026-11-21, crds_fig2)
++
++
++def _fp_height(t: LVType, style: str | None = None) -> int:
++    """Rough height of a front-panel control of this type (and palette style), used to stack controls."""
++    if style and any(w in style.lower() for w in ("graph", "chart")):
++        return _GRAPH_H
+     if t.kind == "cluster":
+         return 30 + sum(_fp_height(f) for _, f in t.fields)
+     if t.kind == "array":
+@@ -912,10 +944,40 @@
          b.add_existing(e["name"], e.get("kind", "existing"), i, e.get("spec") or {})
      controls = [dict(c, _ind=False) for c in spec.get("controls", []) or []] + \
                 [dict(c, _ind=True) for c in spec.get("indicators", []) or []]
@@ -123,7 +139,7 @@
          if c.get("style") is not None:
              st = c["style"]
              if not isinstance(st, str) or not st.strip() or _TERM_BAD.search(st):
-@@ -928,6 +985,9 @@
+@@ -928,6 +990,9 @@
              t = parse_type(c.get("type", "dbl"))
              # an enum's value goes through COM as its item index
              defaults[labels[c["name"]]] = t.enum_index(c["default"]) if t.kind == "enum" else c["default"]
@@ -133,7 +149,7 @@
      b.collect(spec, "")
      if not edit and not existing and not any(n.kind not in ("control", "indicator") for n in b.nodes.values()):
          # A diagram holding only terminals is saved by LabVIEW as a file it cannot reopen.
-@@ -955,7 +1015,8 @@
+@@ -955,7 +1020,8 @@
              # a latched button only resets when its terminal is read) and stop the loop from there.
              frames = {vc_frame[w[0]]}
          if not frames and any((b.nodes[e.partition(".")[0]].kind in _NODE_KINDS
@@ -143,10 +159,13 @@
              late_raw.append(list(w))  # a Property/Invoke Node has its terminals once it is configured
          elif not frames:
              wires.append(ends)
-@@ -985,6 +1046,11 @@
+@@ -984,7 +1050,13 @@
+         ti = b.add_type(c.get("type", "dbl"), c.get("default"))
          n = c["name"]
          fp = (fp_origin[0] + (320 if c["_ind"] else 0), fp_y[c["_ind"]])
-         fp_y[c["_ind"]] += _fp_height(parse_type(c.get("type", "dbl"))) + 25
+-        fp_y[c["_ind"]] += _fp_height(parse_type(c.get("type", "dbl"))) + 25
++        if c.get("position") is None:  # controls placed by hand don't take a slot in the automatic column
++            fp_y[c["_ind"]] += _fp_height(parse_type(c.get("type", "dbl")), c.get("style")) + 25
 +        if c.get("position") is not None:  # optional front-panel [x, y] (top-left); restyled controls keep it
 +            xy = c["position"]
 +            if not (isinstance(xy, (list, tuple)) and len(xy) == 2 and all(isinstance(v, int) for v in xy)):
@@ -155,7 +174,7 @@
          out.append(f"<Control name={quoteattr(n)} typeindex=\"{ti}\""
                     + (" indicator=\"TRUE\"" if c["_ind"] else "")
                     + f" label={quoteattr(labels[n])}"
-@@ -1009,6 +1075,7 @@
+@@ -1009,6 +1081,7 @@
          events=[dict(e, out=b.out_index[e["name"]]) for e in
                  sorted(events, key=lambda e: b.event_order.index(e["name"]))],
          pnodes=pnodes, late=late, late_refs=late_refs,
@@ -163,7 +182,7 @@
      )
  
  
-@@ -1025,6 +1092,18 @@
+@@ -1025,6 +1098,18 @@
              and str(n.spec.get("function", "")).strip() in _BYNAME and term not in _BYNAME_FIXED)
  
  
@@ -184,7 +203,15 @@
      and the script that wires them once configured."""
 --- a/src/labview_mcp/lv.py
 +++ b/src/labview_mcp/lv.py
-@@ -148,6 +148,19 @@
+@@ -7,6 +7,7 @@
+ 
+ import datetime as _dt
+ import json
++import math
+ import os
+ import re
+ import shutil
+@@ -148,6 +149,19 @@
          return d
  
      # ---- tools ----------------------------------------------------------
@@ -204,7 +231,7 @@
      def status(self) -> dict:
          a = self.app
          res = {
-@@ -279,7 +292,7 @@
+@@ -279,7 +293,7 @@
                  h.SetControlValue("type string", VARIANT(pythoncom.VT_ARRAY | pythoncom.VT_UI1, lt.td()))
                  h.SetControlValue("data string", VARIANT(pythoncom.VT_ARRAY | pythoncom.VT_UI1, lt.data(True)))
                  self._run_checked(h, f"clicking {arg!r}")
@@ -213,7 +240,7 @@
                  time.sleep(0.2)
              elif kind == "set":
                  if not isinstance(arg, dict):
-@@ -307,7 +320,7 @@
+@@ -307,7 +321,7 @@
                      v = _jsonable(_try(lambda label=label: vi.GetControlValue(label)))
                      got[label] = enums[label][v] if label in enums and isinstance(v, int) and \
                          0 <= v < len(enums[label]) else v
@@ -222,7 +249,7 @@
              else:
                  raise LabVIEWError(f"unknown action {kind!r}")
          return out
-@@ -374,7 +387,7 @@
+@@ -374,7 +388,7 @@
                  cache[key] = {n["label"]: n["type"]["enum"] for n in g["nodes"]
                                if n["kind"] in ("control", "indicator") and "in" not in n and n.get("label")
                                and isinstance(n.get("type"), dict) and "enum" in n["type"]}
@@ -231,7 +258,7 @@
                  cache[key] = {}
          return cache[key]
  
-@@ -429,6 +442,8 @@
+@@ -429,6 +443,8 @@
              rest = {k: v for k, v in (script.styles or {}).items() if k not in early}
              if rest:
                  self._apply_styles(target, rest)
@@ -240,7 +267,7 @@
              if later:
                  status, code, source = self._gen_script(target, "<Script>\n</Script>", [], [])  # Clean Up
          except LabVIEWError as e:
-@@ -444,6 +459,15 @@
+@@ -444,6 +460,15 @@
                      raise LabVIEWError(f"cannot set default of '{label}' to {value!r}: {_com_msg(e)}") from None
              target._FlagAsMethod("MakeCurValueDefault")
              target.MakeCurValueDefault()
@@ -256,7 +283,7 @@
          _try(lambda: setattr(target, "FPWinTitle", p.stem))  # blank template carries its own title
          # LabVIEW's automatic error handling turns an unwired error into a modal dialog, which blocks
          # LabVIEW (and vi_run) until someone clicks it: off unless the spec asks for it
-@@ -471,6 +495,12 @@
+@@ -471,6 +496,12 @@
                  caps = sel[j] if j < len(sel) else [
                      (f"\"{fr['control']}\": " if fr["control"] else "") + fr["event_name"] for fr in ev["frames"]]
                  res["event_frames"][ev["name"]] = [f"[{i}] {c}" for i, c in enumerate(caps)]
@@ -269,7 +296,7 @@
          if script.styles:
              res["styled"] = script.styles
          made = self._sink_count(str(p))
-@@ -696,6 +726,57 @@
+@@ -696,6 +727,57 @@
          if status:
              raise LabVIEWError(f"{what} failed (error {code}). {_strip_html(str(source))}")
  
@@ -327,7 +354,7 @@
      def _apply_styles(self, target, styles: dict) -> None:
          """Replace front-panel controls with the palette object named, e.g. "Stop Button". The label,
          terminal and wires stay."""
-@@ -751,7 +832,7 @@
+@@ -751,7 +833,7 @@
                      reg.SetControlValue("Static App/VI Events", VARIANT(arr, []))
                      # cluster order: Event Type, Reference, Limit (-1 = none), Lock Panel?
                      reg.SetControlValue("Static Control Events", VARIANT(
@@ -336,7 +363,7 @@
                  else:  # an event of this VI: Event Type, Limit, Lock Panel? (no reference)
                      reg.SetControlValue("Static Control Events", VARIANT(arr, []))
                      reg.SetControlValue("Static App/VI Events", VARIANT(
-@@ -1395,6 +1476,7 @@
+@@ -1395,6 +1477,7 @@
          before = self._sink_count(path)
          if script.xml.strip() == "<Script>\n</Script>":  # only removals
              status, code, source = False, 0, ""
@@ -344,7 +371,7 @@
          else:
              status, code, source = self._gen_script(target, script.xml, script.type_strings,
                                                      script.data_strings, refs=refs, raw=True)
-@@ -1701,7 +1783,7 @@
+@@ -1701,7 +1784,7 @@
          from . import dfir
          try:
              g = dfir.parse(self._dfir_text(path))
@@ -353,7 +380,7 @@
              return None
          return sum(len(w["to"]) for w in g["wires"])
  
-@@ -1720,7 +1802,7 @@
+@@ -1720,7 +1803,7 @@
                           if n["kind"] in ("control", "indicator") and n.get("conpane_index", -1) >= 0
                           and "in" not in n]
                  cache[path] = [lab for _, lab in sorted(terms)]
@@ -362,3 +389,12 @@
                  cache[path] = None
          return cache[path]
  
+@@ -2259,6 +2342,8 @@
+     expected size, at least absolute tol), lists/clusters element by element, others exactly."""
+     if isinstance(want, bool) or isinstance(got, bool):
+         return got is not None and bool(got) == bool(want)
++    if isinstance(want, float) and not math.isfinite(want):  # NaN / inf expected: _jsonable gave "nan" / "inf" / "-inf"
++        return str(got) == str(want) if isinstance(got, (str, float)) else False
+     if isinstance(want, (int, float)) and isinstance(got, (int, float)):
+         return abs(got - want) <= tol * max(1.0, abs(want))
+     if isinstance(want, (list, tuple)) and isinstance(got, (list, tuple)):

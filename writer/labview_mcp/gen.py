@@ -879,8 +879,13 @@ _AUTO_ORDER = {False: ["left0", "left1", "left2", "top0", "top1", "left3"],
                True: ["right0", "right1", "right2", "bottom0", "bottom1", "right3"]}
 
 
-def _fp_height(t: LVType) -> int:
-    """Rough height of a front-panel control of this type, used to stack controls."""
+_GRAPH_H = 230  # graph / chart styles: ~245 px from label to x-axis title on-site (2026-11-21, crds_fig2)
+
+
+def _fp_height(t: LVType, style: str | None = None) -> int:
+    """Rough height of a front-panel control of this type (and palette style), used to stack controls."""
+    if style and any(w in style.lower() for w in ("graph", "chart")):
+        return _GRAPH_H
     if t.kind == "cluster":
         return 30 + sum(_fp_height(f) for _, f in t.fields)
     if t.kind == "array":
@@ -1045,7 +1050,8 @@ def build(spec: dict, existing: list | None = None, origin=(30, 30), fp_origin=(
         ti = b.add_type(c.get("type", "dbl"), c.get("default"))
         n = c["name"]
         fp = (fp_origin[0] + (320 if c["_ind"] else 0), fp_y[c["_ind"]])
-        fp_y[c["_ind"]] += _fp_height(parse_type(c.get("type", "dbl"))) + 25
+        if c.get("position") is None:  # controls placed by hand don't take a slot in the automatic column
+            fp_y[c["_ind"]] += _fp_height(parse_type(c.get("type", "dbl")), c.get("style")) + 25
         if c.get("position") is not None:  # optional front-panel [x, y] (top-left); restyled controls keep it
             xy = c["position"]
             if not (isinstance(xy, (list, tuple)) and len(xy) == 2 and all(isinstance(v, int) for v in xy)):
