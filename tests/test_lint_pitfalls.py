@@ -505,3 +505,52 @@ def test_offline_queue_forgets_names_the_job_no_longer_uses(tmp_queue):
     assert set(C.queue_load()["items"]) == {"Other Thing", "Frobnicate Widget"}
     L.lint_job(_job(), offline=True)
     assert set(C.queue_load()["items"]) == {"Other Thing"}
+
+
+def test_writer_stacks_graphs_by_their_style(dummy_vi):
+    """Graph / chart styles are ~245 px tall on-site (crds_fig2, 2026-11-21): stacked at the 55 px of a plain array they overlapped.
+    Hand-placed controls don't take a slot in the automatic column."""
+    import re
+    import sys
+    from jacq.config import WRITER_SRC
+    sys.path.insert(0, str(WRITER_SRC))
+    from labview_mcp import gen
+    spec = {"controls": [{"name": "a", "type": "dbl"}],
+            "indicators": [{"name": "g1", "type": "dbl[]", "style": "Waveform Graph"},
+                           {"name": "g2", "type": "dbl[]", "style": "Waveform Chart"},
+                           {"name": "p", "type": "dbl", "position": [600, 0]},
+                           {"name": "y", "type": "dbl[]"}, {"name": "z", "type": "dbl"}],
+            "functions": [{"name": "f", "function": "Increment"}], "wires": [["a", "f.x"], ["f.x+1", "z"]]}
+    xml = gen.build(spec).xml
+    y = {n: int(v) for n, v in re.findall(r'<Control name="(\w+)"[^>]*position="\(\d+,(\d+)\)"', xml)}
+    assert y["g2"] - y["g1"] >= 245 and y["y"] - y["g2"] == gen._GRAPH_H + 25 >= 245, y   # == : the hand-placed "p" between them took no slot
+    assert y["z"] - y["y"] == 45 + 10 + 25, y          # a plain array keeps its old pitch; "p" took no slot
+
+
+def test_production_steps_are_checked_by_lint():
+    """PRODUCTION mistakes would only surface hours into lab/production.py: lint reports them as E PROD (same jobguard code)."""
+    m = _job()
+    m.check_ok = lambda v: {"pass": True}
+    m.PRODUCTION = [{"key": "s1", "vi": "v", "inputs": {"x": 1}, "timeout_s": 60},
+                    {"key": "s2", "vi": "v", "inputs": {"x": {"from": "s1", "out": "y"}}, "check": "check_ok"}]
+    assert "PROD" not in _codes(L.lint_job(m, offline=True))
+    for bad in ([{"key": "s1", "vi": "nope"}],                                              # VI not in VIS
+                [{"key": "s1", "vi": "v", "inputs": {"q": 1}}],                              # not a control
+                [{"key": "s1", "vi": "v", "inputs": {"x": {"from": "s0", "out": "y"}}}],    # not an earlier step
+                [{"key": "s1", "vi": "v"}, {"key": "s2", "vi": "v", "inputs": {"x": {"from": "s1", "out": "x"}}}],  # not an indicator
+                [{"key": "s1", "vi": "v"}, {"key": "s1", "vi": "v"}],                        # duplicate key
+                [{"key": "a/b", "vi": "v"}], [{"key": "s1", "vi": "v", "timeout_s": 0}],
+                [{"key": "s1", "vi": "v", "check": "nope"}], [{"key": "s1", "vi": "v", "tmeout_s": 5}], [],
+                [{"key": "heartbeat", "vi": "v"}], [{"key": "CON", "vi": "v"}], [{"key": "s1.", "vi": "v"}],   # files next to the results
+                [{"key": "S1", "vi": "v"}, {"key": "s1", "vi": "v"}],                        # one file on Windows
+                # malformed: reported, never a crash
+                [{"key": "s1", "vi": ["v"]}], [{"key": "s1", "vi": "v"}, {"key": "s2", "vi": "v", "inputs": {"x": {"from": [["s1"]], "out": "y"}}}],
+                [{"key": "s1", "vi": "v"}, {"key": "s2", "vi": "v", "inputs": {"x": {"from": {"s1": 1}, "out": "y"}}}],
+                [{"key": "s1", "vi": "v"}, {"key": "s2", "vi": "v", "inputs": {"x": {"from": "s1", "out": ["y"]}}}],
+                [{"key": "s1", "vi": "v", 3: 1}],
+                [{"key": "s1", "vi": "v", "inputs": {}}]):                                    # x has no default: it would keep an earlier step's value
+        m.PRODUCTION = bad
+        assert "PROD" in _codes(L.lint_job(m, offline=True)), bad
+    m.VIS = [{"name": "v", "spec": "not a dict"}] + list(m.VIS)       # a malformed VIS entry is SHAPE's business, PROD must not crash on it
+    m.PRODUCTION = [{"key": "s1", "vi": "v", "inputs": {"x": 1}}]
+    assert L.GUARD.production_problems(m) == []

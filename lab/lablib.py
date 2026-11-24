@@ -151,15 +151,20 @@ class LV:
         """COM call. A timeout means LabVIEW is hung (most likely an invisible dialog): shlim-t's only COM thread
         is occupied, and all subsequent calls will time out as well. So exit the process immediately, keeping current.txt;
         the outer lab_run.sh stops this session-0 instance and reruns with a new instance, and the hung entry is recorded as hung."""
-        from concurrent.futures import TimeoutError as FTE
+        from concurrent.futures import wait
         t = float(os.environ.get("LVAGENT_FAKE_TIMEOUT", t)) if FAKE else t
+        fut, end = self._submit(fn, *a), time.monotonic() + t
+        while not fut.done() and time.monotonic() < end:   # short waits: on Windows a long one can't be interrupted by Ctrl+C
+            wait([fut], timeout=max(0.0, min(1.0, end - time.monotonic())))
+        if fut.done():
+            return fut.result()      # the call's own exception (a TimeoutError of its own too) is raised as it is
+        say(f"COM call {getattr(fn, '__name__', fn)} exceeded {t}s: LabVIEW judged hung, exiting to switch instances")
+        say("NEED RESTART")
         try:
-            return self._submit(fn, *a).result(timeout=t)
-        except FTE:
-            say(f"COM call {getattr(fn, '__name__', fn)} exceeded {t}s: LabVIEW judged hung, exiting to switch instances")
-            say("NEED RESTART")
             sys.stdout.flush()
-            os._exit(4)
+        except Exception:                    # noqa: BLE001 no console (pythonw, a task without one): exit anyway
+            pass
+        os._exit(4)
 
     def status(self):                  return self.c(self.lv.status)
     def info(self, p):                 return self.c(self.lv.vi_info, str(p))
@@ -198,7 +203,7 @@ class FakeLV:
     def vi_create(self, p, spec, ov, d):
         Path(p).parent.mkdir(parents=True, exist_ok=True); Path(p).write_bytes(b"RSRC fake")
         return {"path": p, "exec_state": "idle"}
-    def vi_run(self, p, i, o, t, a): return {"completed": True, "values": dict(i)}
+    def vi_run(self, p, i, o, t, a): return {"completed": True, "values": {**{n: 0.0 for n in o or []}, **dict(i)}}   # every requested output is read back
     def vi_test(self, p, cases, t, tol): return {"summary": f"{len(cases)}/{len(cases)} cases passed (fake)", "cases": []}
 
 

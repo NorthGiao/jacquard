@@ -611,6 +611,9 @@ def lint_job(job, offline=False) -> list[F]:
     if GUARD.norm_path(job.OUT) != GUARD.norm_path(want_out):
         out.append(F("E", "JOB-OUT", f"OUT={job.OUT} is not {want_out}",
                      f'OUT = BASE / "write2" / "jobs" / "{jobname}" (only VIs under write2 may be run; pulling back / checking also look for this path)'))
+    for k, m in GUARD.production_problems(job):   # the same check lab/production.py refuses to start on
+        out.append(F("E", "PROD", f"PRODUCTION {k}: {m}",
+                     'Steps are {"key": "calib", "vi": "<VI in VIS>", "inputs": {control: value or {"from": "<earlier key>", "out": "<indicator>"}}, "timeout_s": 3600} (lab/production.py docstring)'))
     dummy = REPO / "private" / ".lint_dummy.vi"
     dummy.parent.mkdir(exist_ok=True)
     dummy.write_bytes(b"")

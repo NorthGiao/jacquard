@@ -62,6 +62,14 @@ def main():
     must_runnable(OUT / "x.vi")
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "job_report.json").unlink(missing_ok=True)   # deleted before importing the job: whichever later step crashes, the previous round's report won't be pulled back as this round's
+    global _PROD_LOCK                # held until the process ends: no lab/production.py of this job can start meanwhile
+    _PROD_LOCK = jobguard.production_lock(OUT)
+    if _PROD_LOCK:
+        import atexit
+        atexit.register(jobguard.release_lock, _PROD_LOCK)   # unlock before closing (Windows frees an unreleased lock only after a while)
+    if _PROD_LOCK is None:           # (after the report was deleted: a refused round leaves no report, i.e. no verdict)
+        raise SystemExit(f"a production of {name} is running (lab/production.py holds .production.lock): rebuilding would swap its VIs; "
+                         "wait for it or stop it first")
     job = jobguard.load_job(name)   # load from source, never a possibly stale .pyc
     msg = jobguard.check_only(only, [v["name"] for v in job.VIS]) if only else None   # misspelled names in --only: must not "build nothing and still JOB COMPLETE OK"
     if msg:
@@ -164,9 +172,9 @@ def main():
                 x = timed(lv.run, p, {lab.get(k_, k_): val for k_, val in R.get("inputs", {}).items()},
                           (list(inv) or None) if not acts else None, R.get("timeout", 120.0), acts)
                 res_ = x.get("result") or {}
-                vals = {back.get(k_, k_): val for k_, val in (res_.get("values") or {}).items()}
+                vals = jobguard.decode_nonfinite({back.get(k_, k_): val for k_, val in (res_.get("values") or {}).items()}, spec)
                 if acts:   # the values read by each read step are given to check in order: values["_reads"] = [{name: value}, ...]
-                    vals["_reads"] = [{back.get(k_, k_): v_ for k_, v_ in a_["read"].items()}
+                    vals["_reads"] = [jobguard.decode_nonfinite({back.get(k_, k_): v_ for k_, v_ in a_["read"].items()}, spec)
                                       for a_ in res_.get("actions", []) if isinstance(a_.get("read"), dict)]
                     vals["_completed"] = res_.get("completed")
                     # timing (seconds, counted from Run): the moment of each read / click step, and the duration of the whole run

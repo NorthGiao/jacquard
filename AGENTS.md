@@ -14,6 +14,7 @@ $PY -m jacq.catalog terms "<function>"       # full set of terminals + trust tie
 $PY -m jacq.lint <job> --offline             # when LabVIEW can't be operated; when it can, drop --offline (strict mode)
 scripts/vi_job.sh <job> [--force] [--only a,b]   # one round on the LabVIEW machine (remote mode: needs SSH, user present)
 $PY -m jacq.run <job> [--force] [--only a,b]      # one round on the LabVIEW machine (same-machine mode)
+$PY lab/production.py <job> [--plan] [--only a,b]   # on the LabVIEW machine (same machine): long unattended runs of a verified job's PRODUCTION steps, resumable
 $PY -m jacq.job_check --status <job>         # whether each VI currently counts as verified, the kind of evidence, whether the job file / writer changed since
 scripts/probe_terms.sh --queue              # on the LabVIEW machine: probe all the terminal names accumulated offline for verification at once (remote mode)
 $PY -m jacq.oracle <job>                     # lint's prediction × on-site outcome (called automatically for BUILD_ONLY batches)

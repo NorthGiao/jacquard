@@ -1345,3 +1345,342 @@ def test_vi_job_sh_incomplete_branch_wiring(tmp_path):
                                capture_output=True, text=True)
             seen[(prc, k)] = "JOB_CHECK_CALLED" in r.stdout
     assert seen == {(0, "partial"): True, (0, "old"): False, (1, "partial"): False, (1, "old"): False}, seen
+
+
+def test_decode_nonfinite_follows_the_spec_types():
+    """The writer hands NaN / inf over as strings; numeric controls / indicators get floats back, strings stay strings."""
+    import math
+    spec = {"controls": [{"name": "s", "type": "string"}],
+            "indicators": [{"name": "x", "type": "dbl"}, {"name": "a", "type": "dbl[][]"}, {"name": "t", "type": "string[]"},
+                           {"name": "c", "type": {"cluster": [{"name": "n", "type": "string"}, {"name": "v", "type": "sgl"}]}},
+                           {"name": "e", "type": {"enum": ["nan", "b"]}}]}
+    got = GUARD.decode_nonfinite({"s": "nan", "x": "nan", "a": [["inf", 1.0], ["-inf"]], "t": ["nan"], "c": ["nan", "nan"],
+                                  "e": "nan", "_reads": "nan"}, spec)
+    assert math.isnan(got["x"]) and got["a"][0][0] == math.inf and got["a"][1][0] == -math.inf and got["a"][0][1] == 1.0
+    assert got["s"] == "nan" and got["t"] == ["nan"] and got["e"] == "nan" and got["_reads"] == "nan"
+    assert got["c"][0] == "nan" and math.isnan(got["c"][1])
+    spec = {"indicators": [{"name": "q", "type": "str"}, {"name": "i", "type": "i32[]"},
+                           {"name": "ca", "type": {"array": {"cluster": [{"name": "n", "type": "str"}, {"name": "v", "type": "double"}]}, "dims": 2}}]}
+    got = GUARD.decode_nonfinite({"q": "nan", "i": ["nan"], "ca": [[["nan", "nan"]]]}, spec)
+    assert got["q"] == "nan" and got["i"] == ["nan"] and got["ca"][0][0][0] == "nan" and math.isnan(got["ca"][0][0][1])
+
+
+def test_decode_nonfinite_knows_every_float_name_of_the_writer():
+    import sys
+    from jacq.config import WRITER_SRC
+    sys.path.insert(0, str(WRITER_SRC))
+    from labview_mcp import gen
+    floats = {n for n in [*gen._NUM, *gen._ALIASES] if gen.parse_type(n).kind in ("sgl", "dbl")}
+    assert floats == GUARD.FLOAT_TYPES
+
+
+def test_writer_matches_nonfinite_expectations():
+    """vi_test: an expected NaN / inf matches the "nan" / "inf" string the writer's _jsonable makes of it, nothing else does."""
+    import ast
+    import math
+    src = (REPO / "writer" / "labview_mcp" / "lv.py").read_text(encoding="utf-8")   # lv.py imports pythoncom: take just the function
+    fn = next(n for n in ast.parse(src).body if isinstance(n, ast.FunctionDef) and n.name == "_matches")
+    ns = {"math": math}
+    exec(compile(ast.Module([fn], []), "lv.py", "exec"), ns)
+    _matches = ns["_matches"]
+    assert _matches("nan", float("nan"), 1e-9) and _matches(float("nan"), float("nan"), 1e-9)
+    assert _matches("-inf", float("-inf"), 1e-9) and not _matches("inf", float("-inf"), 1e-9)
+    assert not _matches(1.0, float("nan"), 1e-9) and not _matches("nan", 1.0, 1e-9) and not _matches(None, float("nan"), 1e-9)
+
+
+PRODJOB = r'''
+from lablib import BASE
+OUT = BASE / "write2" / "jobs" / "zzprod"
+SPEC_A = {"controls": [{"name": "x", "type": "dbl", "default": 0.5}], "indicators": [{"name": "y", "type": "dbl[]"}],
+          "functions": [{"name": "f", "function": "Increment"}], "wires": [["x", "f.x"]]}
+SPEC_B = {"controls": [{"name": "z", "type": "dbl[]"}], "indicators": [{"name": "w", "type": "dbl"}],
+          "functions": [{"name": "f", "function": "Increment"}], "wires": [["z", "f.x"]]}
+VIS = [{"name": "a", "spec": SPEC_A}, {"name": "b", "spec": SPEC_B}]
+def check_b(v):
+    return {"pass": v["w"] < 100}
+PRODUCTION = [{"key": "s1", "vi": "a", "inputs": {"x": 1.0}},
+              {"key": "s2", "vi": "a", "inputs": {"x": 2.0}},
+              {"key": "s3", "vi": "b", "inputs": {"z": {"from": ["s1", "s2"], "out": "y"}}, "check": "check_b"}]
+%s
+'''
+
+PRODDRV = r'''
+import json, os, runpy, sys, lablib
+def vi_run(self, p, i, o, t, a):
+    if os.environ.get("INTR") and p.endswith("b.vi"):
+        raise KeyboardInterrupt
+    if os.environ.get("BUSY") and p.endswith("b.vi"):
+        raise RuntimeError("VI is already running.")
+    if p.endswith("a.vi"):
+        if os.environ.get("KILL") == str(i["x"]):
+            os._exit(4)
+        x = "nan" if i["x"] < 0 else i["x"]
+        return {"completed": True, "values": {"y": [x, x]}}
+    if os.environ.get("MISS"):
+        return {"completed": True, "values": {}, "unreadable": {"w": "COM error"}}
+    return {"completed": True, "values": {"w": sum(i["z"])}}
+lablib.FakeLV.vi_run = vi_run
+if os.environ.get("PREP"):          # real mode up to LV(): files and cache as jacq.run leaves them
+    import jobguard
+    from lablib import BASE, writer_sha
+    from vi_job import cache_key
+    job = jobguard.load_job("zzprod")
+    out = jobguard.job_out(BASE, "zzprod")
+    out.mkdir(parents=True, exist_ok=True)
+    cache = {"__writer__": writer_sha() if os.environ["PREP"] == "ok" else "old"}
+    for v in job.VIS:
+        (out / (v["name"] + ".vi")).write_bytes(b"RSRC")
+        cache[v["name"]] = cache_key(jobguard.spec_hash(v), v["spec"], cache, out)
+    (out / ".spec_hash.json").write_text(json.dumps(cache), encoding="utf-8")
+sys.argv = ["production.py"] + sys.argv[1:]
+runpy.run_path(%r, run_name="__main__")
+'''
+
+
+def fake_production(tmp_path, *args, extra="", kill=None, real=False, **env_extra):
+    (tmp_path / "jobs").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "jobs" / "__init__.py").write_text("", encoding="utf-8")
+    (tmp_path / "jobs" / "zzprod.py").write_text(PRODJOB % extra, encoding="utf-8")
+    drv = tmp_path / "proddrv.py"
+    drv.write_text(PRODDRV % str(REPO / "lab" / "production.py"), encoding="utf-8")
+    env = {**os.environ, "LVAGENT_FAKE": "1", "LVAGENT_BASE": str(tmp_path / "sb" / "lv"), "LVAGENT_SANDBOX": str(tmp_path / "sb"),
+           "PYTHONPATH": os.pathsep.join([str(tmp_path), str(REPO / "lab")]), "PYTHONIOENCODING": "utf-8",
+           "LVAGENT_SHLIM": str(REPO / "writer")}   # the driver imports lablib before production.py could set its default
+    for k in ("KILL", "INTR", "BUSY", "MISS", "PREP"):
+        env.pop(k, None)
+    if real:
+        env.pop("LVAGENT_FAKE")
+    if kill is not None:
+        env["KILL"] = str(kill)
+    env.update(env_extra)
+    r = subprocess.run([sys.executable, str(drv), "zzprod", *args], env=env, cwd=tmp_path, capture_output=True, text=True,
+                       encoding="utf-8", timeout=120)
+    out = tmp_path / "sb" / "lv" / "write2" / "jobs" / "zzprod"
+    return r, out / ("production" if real else "production_fake")
+
+
+def rec(prod, k):
+    return json.loads((prod / f"{k}.json").read_text(encoding="utf-8"))
+
+
+def test_production_runs_steps_in_order_and_resumes(tmp_path):
+    """Steps run in order, references are resolved (a list concatenates), results / log / heartbeat are written, a rerun skips finished steps;
+    fake results never land where a real run would take them as done."""
+    r, prod = fake_production(tmp_path)
+    assert r.returncode == 0 and "PRODUCTION COMPLETE" in r.stdout, r.stdout + r.stderr
+    s3 = rec(prod, "s3")
+    assert s3["inputs"]["z"] == [1.0, 1.0, 2.0, 2.0] and s3["values"]["w"] == 6.0 and s3["ok"] is True and s3["check"] == {"pass": True}
+    assert "PRODUCTION COMPLETE" in (prod / "production.log").read_text(encoding="utf-8")
+    assert json.loads((prod / "heartbeat.json").read_text(encoding="utf-8"))["exited"] is True
+    assert not (prod / "current.txt").exists() and not (prod.parent / "production").exists()
+    r, prod = fake_production(tmp_path)
+    assert r.returncode == 0 and "== s1" not in r.stdout, r.stdout
+    r, prod = fake_production(tmp_path, "--plan")
+    assert r.returncode == 0 and r.stdout.count(" done") == 3, r.stdout
+
+
+def test_production_reruns_what_a_changed_step_affects(tmp_path):
+    """Editing s1 reruns s1 and s3 (takes from s1) but not s2: a finished result is reused only while what it depends on is unchanged."""
+    fake_production(tmp_path)
+    r, prod = fake_production(tmp_path, extra='PRODUCTION[0]["inputs"]["x"] = 3.0')
+    assert r.returncode == 0 and "== s1" in r.stdout and "== s2" not in r.stdout and "== s3" in r.stdout, r.stdout
+    assert rec(prod, "s3")["inputs"]["z"] == [3.0, 3.0, 2.0, 2.0]
+
+
+def test_production_reruns_an_interrupted_step_at_most_twice(tmp_path):
+    """The process dies during s2 (reboot / hung LabVIEW): the next run counts it as an attempt and runs it again; dying twice stops for a person."""
+    r, prod = fake_production(tmp_path, kill=2.0)
+    assert r.returncode == 4 and (prod / "current.txt").read_text(encoding="utf-8").startswith("s2\t") and (prod / "s1.json").exists()
+    r, prod = fake_production(tmp_path)
+    assert r.returncode == 0 and "interrupted during step 's2'" in r.stdout and "== s1" not in r.stdout, r.stdout
+    for f in ("s2.json", "s3.json"):
+        (prod / f).unlink()
+    fake_production(tmp_path, kill=2.0)
+    fake_production(tmp_path, kill=2.0)
+    r, prod = fake_production(tmp_path)
+    assert r.returncode == 1 and "failed twice" in r.stdout, r.stdout
+    assert rec(prod, "s2")["attempts"] == 2
+
+
+def test_production_ctrl_c_is_an_interruption_and_a_busy_vi_is_not_an_attempt(tmp_path):
+    """Ctrl+C exits at once like closing the window (the step counts as interrupted); "VI is already running" (left by a killed run) stops
+    without spending one of the two attempts."""
+    r, prod = fake_production(tmp_path, BUSY="1")
+    assert r.returncode == 1 and "no attempt counted" in r.stdout and not (prod / "current.txt").exists(), r.stdout + r.stderr
+    assert rec(prod, "s3")["attempts"] == 0
+    r, prod = fake_production(tmp_path, INTR="1")
+    assert r.returncode == 1 and "Ctrl+C" in r.stdout and (prod / "current.txt").exists(), r.stdout + r.stderr
+    r, prod = fake_production(tmp_path)
+    assert r.returncode == 0 and "interrupted during step 's3' (attempt 1)" in r.stdout and "PRODUCTION COMPLETE" in r.stdout, r.stdout
+
+
+def test_production_counts_a_crash_of_a_step_being_redone(tmp_path):
+    """s2 was done, then edited: its rerun dies twice -> stopped, not an endless loop (the old ok record must not hide the crashes)."""
+    fake_production(tmp_path)
+    for _ in range(2):
+        r, prod = fake_production(tmp_path, extra='PRODUCTION[1]["inputs"]["x"] = 5.0', kill=5.0)
+        assert r.returncode == 4, r.stdout
+    r, prod = fake_production(tmp_path, extra='PRODUCTION[1]["inputs"]["x"] = 5.0')
+    assert r.returncode == 1 and "failed twice" in r.stdout, r.stdout
+
+
+def test_production_reruns_what_a_rebuilt_vi_or_a_redone_step_affects(tmp_path):
+    """A VI rebuilt from another subVI / writer (its .spec_hash.json entry) reruns its steps and what takes from them; a deleted result too."""
+    fake_production(tmp_path)
+    out = tmp_path / "sb" / "lv" / "write2" / "jobs" / "zzprod"
+    (out / ".spec_hash.json").write_text(json.dumps({"b": "rebuilt"}), encoding="utf-8")
+    r, prod = fake_production(tmp_path)
+    assert "== s1" not in r.stdout and "== s3" in r.stdout and r.returncode == 0, r.stdout
+    (prod / "s1.json").unlink()
+    r, prod = fake_production(tmp_path)
+    assert "== s1" in r.stdout and "== s2" not in r.stdout and "== s3" in r.stdout and r.returncode == 0, r.stdout
+
+
+def test_production_fails_a_step_whose_outputs_were_not_read_or_whose_check_fails(tmp_path):
+    r, prod = fake_production(tmp_path, MISS="1")
+    assert r.returncode == 1 and "not read back" in r.stdout and rec(prod, "s3")["unreadable"] == {"w": "COM error"}, r.stdout
+    r, prod = fake_production(tmp_path / "c", extra='PRODUCTION[0]["inputs"]["x"] = 60.0')     # w = 124: check_b fails
+    assert r.returncode == 1 and "check_b failed" in r.stdout and rec(prod, "s3")["ok"] is False, r.stdout
+
+
+def test_production_stops_on_nan_input_unless_allowed(tmp_path):
+    """s1 gives NaN (the writer's "nan" string, decoded to a float): s3 must not compute on it unless the step says allow_nan."""
+    import math
+    r, prod = fake_production(tmp_path, extra='PRODUCTION[0]["inputs"]["x"] = -1.0')
+    assert r.returncode == 1 and "contain NaN" in r.stdout and not (prod / "s3.json").exists(), r.stdout
+    assert math.isnan(rec(prod, "s1")["values"]["y"][0])     # a float NaN, not the string
+    r, prod = fake_production(tmp_path, extra='PRODUCTION[0]["inputs"]["x"] = -1.0\nPRODUCTION[2]["allow_nan"] = True')
+    assert "== s3" in r.stdout and math.isnan(rec(prod, "s3")["inputs"]["z"][0]), r.stdout   # computed on NaN (then check_b: NaN < 100 fails)
+
+
+def test_production_refuses_bad_steps_and_options(tmp_path):
+    """Invalid PRODUCTION (the same check as lint PROD), bad options: exit 2 before touching LabVIEW; --only says it is only part."""
+    r, prod = fake_production(tmp_path, extra='PRODUCTION[2]["inputs"]["z"] = {"from": "s9", "out": "y"}')
+    assert r.returncode == 2 and "PRODUCTION REFUSED" in r.stdout and "s9" in r.stdout and not prod.exists(), r.stdout
+    for args in (("--only", "s1,zz"), ("--only", ","), ("--only",), ("--bogus",)):
+        r, prod = fake_production(tmp_path, *args)
+        assert r.returncode == 2, (args, r.stdout)
+    r, prod = fake_production(tmp_path, "--only", "s1")
+    assert r.returncode == 0 and "PRODUCTION ONLY DONE" in r.stdout and "PRODUCTION COMPLETE" not in r.stdout, r.stdout
+    assert (prod / "s1.json").exists() and not (prod / "s2.json").exists()
+
+
+@pytest.mark.skipif(os.name == "nt", reason="the test holds the lock with fcntl")
+def test_production_refuses_a_second_runner(tmp_path):
+    import fcntl
+    fake_production(tmp_path, "--plan")
+    prod = tmp_path / "sb" / "lv" / "write2" / "jobs" / "zzprod" / "production_fake"
+    prod.mkdir(parents=True, exist_ok=True)
+    with open(prod.parent / ".production.lock", "a+") as f:
+        fcntl.flock(f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        r, _ = fake_production(tmp_path)
+    assert r.returncode == 2 and "another production" in r.stdout and not (prod / "s1.json").exists(), r.stdout
+
+
+def test_production_refuses_vis_that_are_not_verified_and_built(tmp_path):
+    """Real mode: refused (exit 2, LabVIEW untouched) until every VI is verified beyond build-only and built from that spec by this writer."""
+    def verified(kind, ws=None):
+        (tmp_path / "jobs" / "verified.json").write_text(json.dumps({"zzprod": {v["name"]: {"spec_hash": GUARD.spec_hash(v), "evidence": {"kind": kind.get(v["name"], "tests") if isinstance(kind, dict) else kind},
+                                                                                            "writer_sha": ws or writer_sha()}
+                                                                          for v in job.VIS}}), encoding="utf-8")
+    r, _ = fake_production(tmp_path, real=True)
+    assert r.returncode == 2 and "not verified" in r.stdout, r.stdout
+    job = types.SimpleNamespace()
+    exec(compile((PRODJOB % "").replace("from lablib import BASE", "from pathlib import Path; BASE = Path('/x')"), "zzprod", "exec"), job.__dict__)
+    verified("build only")
+    r, _ = fake_production(tmp_path, real=True)
+    assert r.returncode == 2 and "build only" in r.stdout, r.stdout
+    verified("tests", ws="an older writer")
+    r, _ = fake_production(tmp_path, real=True)
+    assert r.returncode == 2 and "another writer" in r.stdout, r.stdout
+    verified("tests")
+    r, _ = fake_production(tmp_path, real=True)
+    assert r.returncode == 2 and ".spec_hash.json" in r.stdout, r.stdout
+    r, _ = fake_production(tmp_path, real=True, PREP="old")
+    assert r.returncode == 2 and "writer changed" in r.stdout, r.stdout
+    r, prod = fake_production(tmp_path, real=True, PREP="ok")       # ready: it gets as far as connecting to LabVIEW, which isn't here
+    assert r.returncode == 1 and "cannot reach LabVIEW" in r.stdout and not list(prod.glob("s*.json")), r.stdout
+    verified({"b": "build only"})                                   # b is run by s3: refused; with s3 gone b is only a VI of the job: fine
+    r, _ = fake_production(tmp_path, real=True, PREP="ok")
+    assert r.returncode == 2 and "only verified as 'build only'" in r.stdout and "['b']" in r.stdout, r.stdout
+    r, _ = fake_production(tmp_path, extra="PRODUCTION = PRODUCTION[:2]", real=True, PREP="ok")
+    assert r.returncode == 1 and "cannot reach LabVIEW" in r.stdout, r.stdout
+    verified({"a": None})
+    r, _ = fake_production(tmp_path, real=True, PREP="ok")
+    assert r.returncode == 2 and "no evidence kind" in r.stdout, r.stdout
+
+
+@pytest.mark.skipif(os.name == "nt", reason="the test holds the lock with fcntl")
+def test_vi_job_refuses_while_a_production_of_the_job_runs(tmp_path):
+    """A jacq.run / vi_job round (fake ones too: they write the same VIs) would rebuild the VIs under a running production: refused, leaving no
+    report (no verdict), so the last round's report can't pass for this one's."""
+    import fcntl
+    r, rep, out = fake_vi_job(tmp_path)
+    assert rep is not None
+    with open(out / ".production.lock", "a+") as f:
+        fcntl.flock(f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        r, rep2, out = fake_vi_job(tmp_path)
+    assert r.returncode != 0 and "production of zzfake is running" in r.stderr and rep2 is None, r.stdout + r.stderr
+    assert not (out / "production").exists() and not (out / "production_fake").exists()   # a round doesn't create production dirs (they'd be pulled)
+
+
+def test_production_refuses_a_job_that_does_not_load(tmp_path):
+    r, prod = fake_production(tmp_path, extra="this is not python")
+    assert r.returncode == 2 and "PRODUCTION REFUSED" in r.stdout and "does not load" in r.stdout, r.stdout + r.stderr
+
+
+def test_production_rechecks_a_reused_result_and_ignores_timeout_edits(tmp_path):
+    """A changed check is evaluated again on the stored values (not hashed: a stricter check must not pass on old values, a tweaked one
+    must not rerun hours of VI); raising timeout_s reruns nothing."""
+    fake_production(tmp_path)
+    r, prod = fake_production(tmp_path, extra='PRODUCTION[0]["timeout_s"] = 7200')
+    assert r.returncode == 0 and "\n== " not in r.stdout, r.stdout
+    r, prod = fake_production(tmp_path, extra="def check_b(v):\n    return {'pass': v['w'] < 1}")
+    assert "check_b (as it is now) fails" in r.stdout and "== s3" in r.stdout and "== s1" not in r.stdout, r.stdout
+
+
+def test_production_rejects_inputs_that_are_not_json():
+    m = types.SimpleNamespace(VIS=[{"name": "v", "spec": {"controls": [{"name": "x", "type": "dbl[]"}], "indicators": []}}],
+                              PRODUCTION=[{"key": "s1", "vi": "v", "inputs": {"x": {1, 2}}}])
+    assert any("plain JSON" in msg for _, msg in GUARD.production_problems(m))
+
+
+def test_lv_call_passes_a_timeout_error_of_the_call_through_at_once(tmp_path):
+    """LV.c waits in short slices; a TimeoutError raised by the called function itself (OSError ETIMEDOUT is one) must surface at once,
+    not spin until the budget is used up and then claim LabVIEW hung."""
+    code = ("import time, lablib\n"
+            "lv = lablib.LV()\n"
+            "def f(): raise TimeoutError('own')\n"
+            "t0 = time.time()\n"
+            "try:\n    lv.c(f, t=30)\nexcept TimeoutError as e:\n    print('RAISED', e, round(time.time() - t0, 1))\n")
+    env = {**os.environ, "LVAGENT_FAKE": "1", "LVAGENT_BASE": str(tmp_path / "sb" / "lv"), "LVAGENT_SANDBOX": str(tmp_path / "sb"),
+           "PYTHONPATH": str(REPO / "lab")}
+    env.pop("LVAGENT_FAKE_TIMEOUT", None)
+    r = subprocess.run([sys.executable, "-c", code], env=env, capture_output=True, text=True, timeout=60)
+    assert r.returncode == 0 and r.stdout.startswith("RAISED own") and float(r.stdout.split()[-1]) < 5, r.stdout + r.stderr
+
+
+BADCHECK = "class NP:\n    pass\ndef check_b(v):\n    v['w'] = 'clobbered'\n    return {'pass': False, 'resid': NP()}"
+
+
+def test_production_check_gets_a_copy_and_a_non_json_answer_is_still_saved(tmp_path):
+    """A check that changes its values or answers with numpy-like scalars must not lose the step's result (a strict dump would crash
+    outside the step's try: the result lost, current.txt left, a false "interrupted" next time)."""
+    r, prod = fake_production(tmp_path, extra=BADCHECK)
+    assert r.returncode == 1 and "check_b failed" in r.stdout and "unexpected error" not in r.stdout, r.stdout + r.stderr
+    assert rec(prod, "s3")["values"] == {"w": 6} and not (prod / "current.txt").exists()
+
+
+def test_production_reuses_a_result_whose_edited_check_now_passes_and_a_new_timeout_resets_attempts(tmp_path):
+    """Check and timeout_s are outside the signature, so editing them must still get a stopped step going: a completed result that failed
+    only its check counts as done once the edited check passes on it; a changed timeout_s starts a new attempt count."""
+    fake_production(tmp_path, extra=BADCHECK)
+    fake_production(tmp_path, extra=BADCHECK)
+    r, prod = fake_production(tmp_path, extra=BADCHECK)
+    assert r.returncode == 1 and "failed twice already" in r.stdout, r.stdout
+    r, prod = fake_production(tmp_path, extra=BADCHECK + '\nPRODUCTION[2]["timeout_s"] = 60')
+    assert "== s3" in r.stdout and "failed twice already" not in r.stdout, r.stdout
+    r, prod = fake_production(tmp_path, extra='PRODUCTION[2]["timeout_s"] = 60')
+    assert r.returncode == 0 and "counted as done" in r.stdout and "\n== " not in r.stdout, r.stdout
+    s3 = rec(prod, "s3")
+    assert s3["ok"] and s3["check"] == {"pass": True} and s3["values"] == {"w": 6}

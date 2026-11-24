@@ -77,7 +77,8 @@ def main(argv=None):
     if not rp.exists() or rp.stat().st_mtime < t0 - 2:   # this round wrote no report (failed before starting): any report in the sandbox is from the previous round and isn't used for judging
         print("==== this round produced no job_report.json: not copying back, no verdict")
         return 2
-    shutil.copytree(src, dest, dirs_exist_ok=True)   # copy back even if it didn't finish: the report has complete=false, and job_check will say truthfully how far it got
+    shutil.copytree(src, dest, dirs_exist_ok=True,   # production results and its lock aren't this round's: not copied (a production may write them now)
+                    ignore=shutil.ignore_patterns("production", "production_fake", ".production.lock", "*.part"))   # copy back even if it didn't finish: the report has complete=false, and job_check will say truthfully how far it got
     rc = job_check.main(job, dest)
     return rc if done else (rc or 2)
 

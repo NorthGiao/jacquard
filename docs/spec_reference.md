@@ -18,6 +18,10 @@ VIS = [                                       # subVIs first, callers after
 ]
 def check_main(v):        # v = {name: value}; with actions, v["_reads"] = the {name: value} read by each read step, v["_completed"]
     return {"pass": ..., "anything to note": ...}   # "pass" must be a bool: without it (or if not a dict) vi_job judges it not passed
+PRODUCTION = [            # optional: long runs after the job is verified (lab/production.py <job>; lint checks it as PROD)
+  {"key": "calib", "vi": "main", "inputs": {"x": 3}, "timeout_s": 6 * 3600},
+  {"key": "use", "vi": "main", "inputs": {"x": {"from": "calib", "out": "y"}}, "check": "check_main"},   # ["k1", "k2"] concatenates
+]
 ```
 - inputs / expect / outputs / actions always use the spec **name**; vi_job automatically swaps in the visible label (Chinese works too).
 - Write a subVI's `path` as `str(OUT / "sub.vi")` (don't forget `str()`, lint `SHAPE`); VIs in vi.lib use absolute paths (`vilib_paths` in `catalog/terminals_confirmed.json`). A job can only call two kinds of subVIs: VIs under this job's `OUT`, and vi.lib VIs registered in `VILIB_ALLOW` of `lab/jobguard.py` (currently only Uniform White Noise.vi); hardware I/O / network / external code / dynamic-call functions and VI Server nodes using `"class"` can't go into a job (lint `HW-IO`).

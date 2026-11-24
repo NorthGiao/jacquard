@@ -14,6 +14,8 @@
     VI Server  property / invoke nodes using "class" (operating on VI or application references, such as the Run VI method of the VI class) are never allowed; those linked to front-panel controls ("control") are fine.
   The function item is a name-based denylist, not LabVIEW's authoritative classification: hardware functions not on the list slip through. The real backstop is the subVI allowlist + lint's UNVERIFIED
   (functions whose terminal names haven't been verified can't get into a job in strict mode). Requirements involving DAQ cards don't go through jobs: see skill labview-vi-write "Involving a DAQ card".
+- decode_nonfinite(values, spec)   the writer's _jsonable hands non-finite numbers over as the strings "nan" / "inf" / "-inf" (upstream keeps
+                      its results strict JSON); turn them back into floats for numeric controls / indicators, so checks and production see NaN, not str.
 """
 import hashlib
 import importlib.util
@@ -183,3 +185,164 @@ def scan_vis(VIS, out) -> list:
     """[(VI name, node name, description), ...]"""
     return [(v.get("name"), n, why) for v in VIS if isinstance(v, dict) and isinstance(v.get("spec"), dict)
             for n, why in scan_spec(v["spec"], out)]
+
+
+NONFINITE = {"nan": float("nan"), "inf": float("inf"), "-inf": float("-inf")}
+FLOAT_TYPES = {"dbl", "sgl", "double", "float", "float64", "single", "float32"}   # gen.parse_type's float names (a test keeps them in sync); only floats carry NaN
+
+
+def _decode(v, t, dims=0):
+    """v decoded along the spec type t (the forms gen.parse_type accepts); values that don't fit t are left as they are.
+    dims: array levels to descend before reaching an element of t ({"array": t, "dims": n}, "dbl[][]")."""
+    if dims:
+        return [_decode(x, t, dims - 1) for x in v] if isinstance(v, list) else v
+    if isinstance(t, dict):
+        if "array" in t:
+            d = t.get("dims", 1)
+            return _decode(v, t["array"], d if isinstance(d, int) and not isinstance(d, bool) and d >= 1 else 1)
+        if isinstance(t.get("cluster"), list) and isinstance(v, list) and len(v) == len(t["cluster"]):
+            return [_decode(x, f.get("type") if isinstance(f, dict) else None) for x, f in zip(v, t["cluster"])]
+        return v                                   # enum / flat / malformed: never numbers with NaN
+    if not isinstance(t, str):
+        return v
+    s, n = t.strip().lower().replace(" ", ""), 0
+    while s.endswith("[]"):
+        s, n = s[:-2], n + 1
+    if s not in FLOAT_TYPES:
+        return v
+    if n:
+        return _decode(v, s, n)
+    return NONFINITE.get(v, v) if isinstance(v, str) else v
+
+
+def decode_nonfinite(values, spec):
+    """{spec name: value} with "nan" / "inf" / "-inf" strings of numeric controls / indicators (by their spec type) turned back into floats.
+    Names not in the spec (e.g. "_reads", "_elapsed") are left as they are."""
+    types = {c.get("name"): c.get("type", "dbl") for c in (spec.get("controls") or []) + (spec.get("indicators") or [])
+             if isinstance(c, dict)}
+    return {k: (_decode(v, types[k]) if k in types else v) for k, v in values.items()}
+
+
+def production_lock(out):
+    """The lock <job out>/.production.lock, held for the life of the process (the OS releases it when the process dies, also on a reboot); None
+    if another process holds it. Taken by lab/production.py for a whole run (fake or real) and by lab/vi_job.py for a round (fake or real: both
+    write the VIs in <job out>), so a rebuild can't swap the VIs under a running production and two productions can't run the same steps.
+    Give it back with release_lock (Windows wants the byte unlocked before the file is closed)."""
+    import os
+    Path(out).mkdir(parents=True, exist_ok=True)
+    f = open(Path(out) / ".production.lock", "a+")
+    try:
+        if os.name == "nt":
+            import msvcrt
+            f.seek(0)
+            msvcrt.locking(f.fileno(), msvcrt.LK_NBLCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        f.close()
+        return None
+    return f
+
+
+def release_lock(f):
+    import os
+    try:
+        if os.name == "nt":
+            import msvcrt
+            f.seek(0)
+            msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1)
+    except OSError:
+        pass
+    f.close()
+
+
+STEP_KEY = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_.\-]{0,99}")
+_STEP_KEYS = {"key", "vi", "inputs", "timeout_s", "check", "allow_nan"}
+_STEP_RESERVED = {"heartbeat"}   # heartbeat.json lives next to the <key>.json results
+
+
+def step_refs(val):
+    """An input of a production step that takes earlier results: {"from": "<step>" or ["<step>", ...], "out": "<indicator>"} → (steps, out); else None.
+    With a list, the outputs of those steps are concatenated (each must be a list)."""
+    if isinstance(val, dict) and set(val) == {"from", "out"}:
+        src = val["from"] if isinstance(val["from"], list) else [val["from"]]
+        return src, val["out"]
+    return None
+
+
+def production_problems(job) -> list:
+    """[(step key, message), ...] for job.PRODUCTION (see lab/production.py); [] when the job has none or it is fine. Never raises on a malformed job.
+    Shared by lint (PROD) and lab/production.py (refuses to start), so a typo is caught before an overnight run, not hours into it."""
+    P = getattr(job, "PRODUCTION", None)
+    if P is None:
+        return []
+    if not isinstance(P, list) or not P:
+        return [("PRODUCTION", "must be a non-empty list of steps {\"key\", \"vi\", \"inputs\", ...}")]
+    VIS = getattr(job, "VIS", None)
+    vis = {v["name"]: v["spec"] for v in (VIS if isinstance(VIS, list) else [])
+           if isinstance(v, dict) and isinstance(v.get("name"), str) and isinstance(v.get("spec"), dict)}
+
+    def names(spec, kind):
+        cs = spec.get(kind)
+        return {c["name"] for c in cs if isinstance(c, dict) and isinstance(c.get("name"), str)} if isinstance(cs, list) else set()
+    bad, seen, folded = [], {}, set()
+    for i, s in enumerate(P):
+        if not isinstance(s, dict):
+            bad.append((f"PRODUCTION[{i}]", "each step is a dict"))
+            continue
+        k = s.get("key")
+        if not isinstance(k, str) or not STEP_KEY.fullmatch(k) or k.startswith("_") or BAD_VI_NAME.search(k) \
+                or k.casefold() in _STEP_RESERVED:
+            bad.append((f"PRODUCTION[{i}]", f"key {k!r}: letters, digits, _ . - (a file name: not starting with _, not ending with ., "
+                                            f"not a Windows device name like CON / NUL, not one of {sorted(_STEP_RESERVED)})"))
+            continue
+        if k.casefold() in folded:
+            bad.append((k, "key is used twice (keys differing only in case are one file on Windows)"))
+        folded.add(k.casefold())
+        for x in sorted(map(str, set(s) - _STEP_KEYS)):
+            bad.append((k, f"unknown field {x!r} (fields: {sorted(_STEP_KEYS)})"))
+        vi = s.get("vi")
+        if not isinstance(vi, str) or vi not in vis:
+            bad.append((k, f"vi {vi!r} is not a VI of this job"))
+            seen[k] = None
+            continue
+        ins = s.get("inputs", {})
+        if not isinstance(ins, dict):
+            bad.append((k, "inputs is a dict {control name: value or {\"from\": step, \"out\": indicator}}"))
+            ins = {}
+        ctl = names(vis[vi], "controls")
+        unset = sorted(c["name"] for c in vis[vi].get("controls") or [] if isinstance(c, dict) and isinstance(c.get("name"), str)
+                       and c.get("default") is None and c["name"] not in ins and not str(c.get("type", "")).strip().lower().startswith("error"))
+        if unset:   # vi_run doesn't reset controls: an unset one would keep what an earlier step left in it, so results would depend on the run's history
+            bad.append((k, f"controls {unset} of {vi} have no spec default: give them in inputs"))
+        for n, val in ins.items():
+            if n not in ctl:
+                bad.append((k, f"input {n!r} is not a control of {vi} (spec names: {sorted(ctl)})"))
+            r = step_refs(val)
+            if r is None:
+                if isinstance(val, dict) and ("from" in val or "out" in val):
+                    bad.append((k, f"input {n!r}: a reference is exactly {{\"from\": step or [steps], \"out\": indicator}}"))
+                try:
+                    json.dumps(val, sort_keys=True)
+                except (TypeError, ValueError):   # e.g. a numpy array: its str() is truncated, so the result record and the signature would be wrong
+                    bad.append((k, f"input {n!r}: a plain JSON value (numbers, strings, lists, dicts; numpy: .tolist())"))
+                continue
+            src, out = r
+            if not src or not all(isinstance(f, str) for f in src) or not isinstance(out, str):
+                bad.append((k, f"input {n!r}: \"from\" is a step key or a non-empty list of them, \"out\" an indicator name"))
+                continue
+            for f in src:
+                if f not in seen:
+                    bad.append((k, f"input {n!r} takes from {f!r}, which is not an earlier step"))
+                elif seen[f] is not None and out not in names(vis[seen[f]], "indicators"):
+                    bad.append((k, f"input {n!r}: {out!r} is not an indicator of {seen[f]} (step {f!r})"))
+        t = s.get("timeout_s", 3600)
+        if isinstance(t, bool) or not isinstance(t, (int, float)) or not 0 < t < 1e8:
+            bad.append((k, "timeout_s is a positive number of seconds"))
+        if "allow_nan" in s and not isinstance(s["allow_nan"], bool):
+            bad.append((k, "allow_nan is true / false"))
+        if "check" in s and not (isinstance(s["check"], str) and callable(getattr(job, s["check"], None))):
+            bad.append((k, f"check {s['check']!r} is not a function in the job file"))
+        seen[k] = vi
+    return bad
